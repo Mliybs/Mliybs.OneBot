@@ -4,11 +4,23 @@
     <TargetFrameworks>netstandard2.1;net6.0</TargetFrameworks>
     <Nullable>enable</Nullable>
 	<LangVersion>12</LangVersion>
+	<PackageId>Mliybs.OneBot.V11</PackageId>
+    <Version>0.9.0</Version>
+    <Authors>Mliybs</Authors>
+    <Company>Mlinetles</Company>
+    <Description>OneBotV11的独立C#实现</Description>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <RepositoryUrl>https://github.com/Mliybs/Mliybs.OneBot</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Reactive" Version="6.0.0" />
     <PackageReference Condition="$(TargetFramework) == 'netstandard2.1'" Include="System.Text.Json" Version="8.0.3" />
   </ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\LICENSE.txt" Pack="true" PackagePath="." />
+	</ItemGroup>
 
 </Project>
