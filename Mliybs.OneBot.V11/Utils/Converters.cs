@@ -32,13 +32,14 @@ namespace Mliybs.OneBot.V11.Utils
     {
         public override int Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TryGetInt32(out var _value)) return _value;
-            else
+            if (reader.TokenType == JsonTokenType.String)
             {
                 var text = reader.GetString();
                 if (string.IsNullOrEmpty(text)) return 0;
                 return int.Parse(text);
             }
+
+            else return reader.GetInt32();
         }
 
         public override void Write(Utf8JsonWriter writer, int value, JsonSerializerOptions options)
@@ -51,13 +52,14 @@ namespace Mliybs.OneBot.V11.Utils
     {
         public override int? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TryGetInt32(out var _value)) return _value;
-            else
+            if (reader.TokenType == JsonTokenType.String)
             {
                 var text = reader.GetString();
                 if (string.IsNullOrEmpty(text)) return null;
                 return int.Parse(text);
             }
+
+            else return reader.GetInt32();
         }
 
         public override void Write(Utf8JsonWriter writer, int? value, JsonSerializerOptions options)
@@ -71,13 +73,14 @@ namespace Mliybs.OneBot.V11.Utils
     {
         public override long Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TryGetInt64(out var _value)) return _value;
-            else
+            if (reader.TokenType == JsonTokenType.String)
             {
                 var text = reader.GetString();
                 if (string.IsNullOrEmpty(text)) return 0;
                 return long.Parse(text);
             }
+
+            else return reader.GetInt64();
         }
 
         public override void Write(Utf8JsonWriter writer, long value, JsonSerializerOptions options)
@@ -90,13 +93,14 @@ namespace Mliybs.OneBot.V11.Utils
     {
         public override long? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TryGetInt32(out var _value)) return _value;
-            else
+            if (reader.TokenType == JsonTokenType.String)
             {
                 var text = reader.GetString();
                 if (string.IsNullOrEmpty(text)) return null;
                 return long.Parse(text);
             }
+
+            else return reader.GetInt64();
         }
 
         public override void Write(Utf8JsonWriter writer, long? value, JsonSerializerOptions options)
