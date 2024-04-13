@@ -102,7 +102,7 @@ namespace Mliybs.OneBot.V11
                     if (type == "message")
                     {
                         var _type = UtilHelpers.MessageReceivers[json.RootElement.GetProperty("message_type").GetString()!];
-                        var obj = json.Deserialize(_type)!;
+                        var obj = json.Deserialize(_type, UtilHelpers.Options)!;
                         typeof(MessageReceiver).GetProperty("Message")!
                             .SetValue(obj, json.RootElement.GetProperty("message")!.DeserializeMessageChain());
                         if (obj is MessageReceiver receiver) messageReceived.OnNext(receiver);
@@ -111,21 +111,21 @@ namespace Mliybs.OneBot.V11
                     else if (type == "notice")
                     {
                         var _type = UtilHelpers.NoticeReceivers[json.RootElement.GetProperty("request_type").GetString()!];
-                        var obj = json.Deserialize(_type)!;
+                        var obj = json.Deserialize(_type, UtilHelpers.Options)!;
                         if (obj is NoticeReceiver receiver) noticeReceived.OnNext(receiver);
                         else noticeReceived.OnError(new NullReferenceException());
                     }
                     else if (type == "request")
                     {
                         var _type = UtilHelpers.RequestReceivers[json.RootElement.GetProperty("notice_type").GetString()!];
-                        var obj = json.Deserialize(_type)!;
+                        var obj = json.Deserialize(_type, UtilHelpers.Options)!;
                         if (obj is RequestReceiver receiver) requestReceived.OnNext(receiver);
                         else requestReceived.OnError(new NullReferenceException());
                     }
                     else if (type == "meta_event")
                     {
                         var _type = UtilHelpers.MetaReceivers[json.RootElement.GetProperty("meta_event_type").GetString()!];
-                        var obj = json.Deserialize(_type)!;
+                        var obj = json.Deserialize(_type, UtilHelpers.Options)!;
                         if (obj is MetaReceiver receiver) metaReceived.OnNext(receiver);
                         else metaReceived.OnError(new NullReferenceException());
                     }
@@ -136,7 +136,7 @@ namespace Mliybs.OneBot.V11
                 }
                 else
                 {
-                    var result = json.Deserialize<ReplyResult>();
+                    var result = json.Deserialize<ReplyResult>(UtilHelpers.Options);
                     if (result is null) throw new NullReferenceException();
                     else
                     {
