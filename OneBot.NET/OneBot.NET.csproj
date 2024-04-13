@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.1;net6.0</TargetFrameworks>
+	<Nullable>enable</Nullable>
+	<LangVersion>12</LangVersion>
+	<PackageId>OneBot.NET</PackageId>
+	<Version>0.9.0</Version>
+	<Authors>Mliybs</Authors>
+	<Company>Mlinetles</Company>
+	<Description>OneBot的独立C#实现</Description>
+	<PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+	<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+	<GenerateDocumentationFile>false</GenerateDocumentationFile>
+	<RepositoryUrl>https://github.com/Mliybs/Mliybs.OneBot</RepositoryUrl>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="." />
+		<None Include="..\LICENSE.txt" Pack="true" PackagePath="." />
+		<None Include="..\icon.png" Pack="true" PackagePath="." />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Mliybs.OneBot.V11" Version="0.9.0" />
+	</ItemGroup>
+
+</Project>

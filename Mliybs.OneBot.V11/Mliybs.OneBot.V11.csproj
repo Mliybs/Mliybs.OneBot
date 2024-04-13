@@ -5,10 +5,12 @@
     <Nullable>enable</Nullable>
 	<LangVersion>12</LangVersion>
 	<PackageId>Mliybs.OneBot.V11</PackageId>
-    <Version>0.9.0</Version>
+    <Version>0.9.2</Version>
     <Authors>Mliybs</Authors>
     <Company>Mlinetles</Company>
     <Description>OneBotV11的独立C#实现</Description>
+	  <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <RepositoryUrl>https://github.com/Mliybs/Mliybs.OneBot</RepositoryUrl>
@@ -20,7 +22,9 @@
   </ItemGroup>
 
 	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="." />
 		<None Include="..\LICENSE.txt" Pack="true" PackagePath="." />
+		<None Include="..\icon.png" Pack="true" PackagePath="." />
 	</ItemGroup>
 
 </Project>

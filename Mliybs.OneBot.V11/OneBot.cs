@@ -1,4 +1,5 @@
 using Mliybs.OneBot.V11.Data;
+using Mliybs.OneBot.V11.Data.Messages;
 using Mliybs.OneBot.V11.Data.Receivers;
 using Mliybs.OneBot.V11.Data.Receivers.Messages;
 using Mliybs.OneBot.V11.Data.Receivers.Metas;
@@ -49,7 +50,9 @@ namespace Mliybs.OneBot.V11
 
         public OneBot(IOneBotHandler botHandler) => handler = botHandler;
 
-        public async Task<Message> SendPrivateMsg(long userId, string message, bool autoEscape = false)
+        public async Task ConnectAsync() => await handler.ConnectAsync();
+
+        public async Task<Message> SendPrivateMsg(long userId, MessageChain message, bool autoEscape = false)
         {
             var (json, id) = ("send_private_msg", new
             {
@@ -61,7 +64,8 @@ namespace Mliybs.OneBot.V11
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<Message>()!;
         }
-        public async Task<Message> SendGroupMsg(long groupId, string message, bool autoEscape = false)
+
+        public async Task<Message> SendGroupMsg(long groupId, MessageChain message, bool autoEscape = false)
         {
             var (json, id) = ("send_group_msg", new
             {
@@ -74,7 +78,7 @@ namespace Mliybs.OneBot.V11
             return (await task).Data.Deserialize<Message>()!;
         }
 
-        public async Task<Message> SendMsg(OneBotMessageType messageType, long id, string message, bool autoEscape = false)
+        public async Task<Message> SendMsg(OneBotMessageType messageType, long id, MessageChain message, bool autoEscape = false)
         {
             object obj = messageType switch
             {
@@ -398,6 +402,13 @@ namespace Mliybs.OneBot.V11
             await handler.SendAsync(json);
         }
 
+        public async Task<JsonElement> Custom(string action, object data)
+        {
+            var (json, id) = (action, data).BuildJson();
+            var task = id.WaitForReply(handler);
+            await handler.SendAsync(json);
+            return (await task).Data;
+        }
 
         public IObservable<MessageReceiver> MessageReceived => handler.MessageReceived;
 

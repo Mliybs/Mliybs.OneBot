@@ -26,6 +26,19 @@ namespace Mliybs.OneBot.V11.Utils
 
         public static readonly Dictionary<string, Type> MessageTypes = new();
 
+        public static readonly JsonSerializerOptions Options = new()
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Converters =
+            {
+                new StringIntConverter(),
+                new NullableStringIntConverter(),
+                new StringLongConverter(),
+                new NullableStringLongConverter()
+            }
+        };
+
         static UtilHelpers()
         {
             var types = typeof(UtilHelpers).Assembly.GetTypes();
@@ -59,7 +72,7 @@ namespace Mliybs.OneBot.V11.Utils
                 obj.action,
                 obj.@params,
                 echo = id
-            });
+            }, Options);
             return (json, id);
         }
 
@@ -80,7 +93,7 @@ namespace Mliybs.OneBot.V11.Utils
         public static MessageChain DeserializeMessageChain(this JsonElement json)
         {
             var array = json.EnumerateArray();
-            return array.Select(x => x.Deserialize(MessageTypes[x.GetProperty("type").GetString()!])).ToMessageChain();
+            return array.Select(x => x.Deserialize(MessageTypes[x.GetProperty("type").GetString()!], Options)).ToMessageChain();
         }
     }
 }

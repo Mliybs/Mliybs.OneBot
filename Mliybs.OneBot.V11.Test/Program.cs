@@ -3,6 +3,7 @@ using Mliybs.OneBot.V11.Data.Messages;
 using Mliybs.OneBot.V11.Data.Receivers.Messages;
 using System.Diagnostics;
 using System.Reactive.Linq;
+using System.Text.Json;
 
 AppDomain.CurrentDomain.FirstChanceException += (sender, e) =>
 {
@@ -10,6 +11,8 @@ AppDomain.CurrentDomain.FirstChanceException += (sender, e) =>
 };
 
 var bot = new OneBot("ws://localhost:3001", OneBotConnectionType.WebSocket);
+
+await bot.ConnectAsync();
 
 Console.ReadKey();
 

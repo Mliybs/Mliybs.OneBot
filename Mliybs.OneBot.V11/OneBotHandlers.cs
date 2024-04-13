@@ -34,11 +34,15 @@ namespace Mliybs.OneBot.V11
 
         IDictionary<string, Action<ReplyResult>> OnReply { get; }
 
+        Task ConnectAsync();
+
         Task SendAsync(string json);
     }
 
     internal class WebsocketOneBotHandler : IOneBotHandler
     {
+        private Uri uri;
+
         private readonly ClientWebSocket socket = new();
 
         private readonly Subject<MessageReceiver> messageReceived = new();
@@ -53,15 +57,20 @@ namespace Mliybs.OneBot.V11
 
         private readonly Dictionary<string, Action<ReplyResult>> onReply = new();
 
-        public WebsocketOneBotHandler(Uri uri, string? token = null)
+        public WebsocketOneBotHandler(Uri _uri, string? token = null)
         {
             if (token is not null) socket.Options.SetRequestHeader("Authorization", "Bearer " + token);
-            _ = ConnectAsync(uri);
+            uri = _uri;
         }
 
-        public async Task ConnectAsync(Uri uri)
+        public async Task ConnectAsync()
         {
             await socket.ConnectAsync(uri, CancellationToken.None);
+            _ = Run();
+        }
+
+        public async Task Run()
+        {
             while (socket.CloseStatus is null)
             {
                 var bytes = ArrayPool<byte>.Shared.Rent(1024);
@@ -79,6 +88,7 @@ namespace Mliybs.OneBot.V11
                     else
                     {
                         read += result.Count;
+                        if (read < bytes.Length) continue;
                         var _bytes = ArrayPool<byte>.Shared.Rent(bytes.Length + 1024);
                         Buffer.BlockCopy(bytes, 0, _bytes, 0, bytes.Length);
                         ArrayPool<byte>.Shared.Return(bytes);

@@ -10,6 +10,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [CustomTypeIdentifier("text")]
     public class TextMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "text";
 
         [JsonPropertyName("data")]
@@ -25,6 +26,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [CustomTypeIdentifier("image")]
     public class ImageMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "image";
 
         [JsonPropertyName("data")]
@@ -43,10 +45,10 @@ namespace Mliybs.OneBot.V11.Data.Messages
             public string? Url { get; set; }
 
             [JsonPropertyName("cache")]
-            public string? Cache { get; set; }
+            public bool? Cache { get; set; }
 
             [JsonPropertyName("proxy")]
-            public string? Proxy { get; set; }
+            public bool? Proxy { get; set; }
 
             [JsonPropertyName("timeout")]
             public string? Timeout { get; set; }
@@ -62,6 +64,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [CustomTypeIdentifier("face")]
     public class FaceMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "face";
 
         [JsonPropertyName("data")]
@@ -77,6 +80,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [CustomTypeIdentifier("record")]
     public class RecordMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "record";
 
         [JsonPropertyName("data")]
@@ -89,16 +93,16 @@ namespace Mliybs.OneBot.V11.Data.Messages
             public string? File { get; set; }
 
             [JsonPropertyName("magic")]
-            public string? Magic { get; set; }
+            public bool? Magic { get; set; }
 
             [JsonPropertyName("url")]
             public string? Url { get; set; }
 
             [JsonPropertyName("cache")]
-            public string? Cache { get; set; }
+            public bool? Cache { get; set; }
 
             [JsonPropertyName("proxy")]
-            public string? Proxy { get; set; }
+            public bool? Proxy { get; set; }
 
             [JsonPropertyName("timeout")]
             public string? Timeout { get; set; }
@@ -109,6 +113,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [CustomTypeIdentifier("video")]
     public class VideoMessgae : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "video";
 
         [JsonPropertyName("data")]
@@ -124,10 +129,10 @@ namespace Mliybs.OneBot.V11.Data.Messages
             public string? Url { get; set; }
 
             [JsonPropertyName("cache")]
-            public string? Cache { get; set; }
+            public bool? Cache { get; set; }
 
             [JsonPropertyName("proxy")]
-            public string? Proxy { get; set; }
+            public bool? Proxy { get; set; }
 
             [JsonPropertyName("timeout")]
             public string? Timeout { get; set; }
@@ -138,6 +143,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [CustomTypeIdentifier("at")]
     public class AtMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "at";
 
         public AtData Data { get; set; }
@@ -152,24 +158,28 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [CustomTypeIdentifier("rps")]
     public class RpsMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "rps";
     }
 
     [CustomTypeIdentifier("dice")]
     public class DiceMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "dice";
     }
 
     [CustomTypeIdentifier("shake")]
     public class ShakeMessgae : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "shake";
     }
 
     [CustomTypeIdentifier("poke")]
     public class PokeMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "poke";
 
         [JsonPropertyName("data")]
@@ -181,7 +191,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
             public string Type { get; set; }
 
             [JsonPropertyName("id")]
-            public string Id { get; set; }
+            public long Id { get; set; }
 
 #nullable enable
             [JsonPropertyName("name")]
@@ -193,6 +203,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [CustomTypeIdentifier("anonymous")]
     public class AnonymousMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "anonymous";
 
         [JsonPropertyName("data")]
@@ -202,7 +213,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
         {
 #nullable enable
             [JsonPropertyName("ignore")]
-            public string? Ignore { get; set; }
+            public bool? Ignore { get; set; }
 #nullable disable
         }
     }
@@ -210,6 +221,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [CustomTypeIdentifier("share")]
     public class ShareMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "share";
 
         [JsonPropertyName("data")]
@@ -236,6 +248,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [CustomTypeIdentifier("contact")]
     public class ContactMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "contact";
 
         [JsonPropertyName("data")]
@@ -247,7 +260,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
             public ContactType Type { get; set; }
 
             [JsonPropertyName("id")]
-            public string Id { get; set; }
+            public long Id { get; set; }
         }
 
         public enum ContactType
@@ -260,6 +273,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [CustomTypeIdentifier("location")]
     public class LocationMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "location";
 
         [JsonPropertyName("data")]
@@ -286,6 +300,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [CustomTypeIdentifier("music")]
     public class MusicMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "music";
 
         [JsonPropertyName("data")]
@@ -321,6 +336,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [CustomTypeIdentifier("reply")]
     public class ReplyMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "reply";
 
         [JsonPropertyName("data")]
@@ -329,13 +345,14 @@ namespace Mliybs.OneBot.V11.Data.Messages
         public class ReplyData
         {
             [JsonPropertyName("id")]
-            public string Id { get; set; }
+            public int Id { get; set; }
         }
     }
 
     [CustomTypeIdentifier("forward")]
     public class ForwardMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "forward";
 
         [JsonPropertyName("data")]
@@ -344,13 +361,14 @@ namespace Mliybs.OneBot.V11.Data.Messages
         public class ForwardData
         {
             [JsonPropertyName("id")]
-            public string Id { get; set; }
+            public int Id { get; set; }
         }
     }
 
     [CustomTypeIdentifier("node")]
     public class NodeMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "node";
 
         [JsonPropertyName("data")]
@@ -360,10 +378,10 @@ namespace Mliybs.OneBot.V11.Data.Messages
         {
 #nullable enable
             [JsonPropertyName("id")]
-            public string? Id { get; set; }
+            public int? Id { get; set; }
 
             [JsonPropertyName("user_id")]
-            public string? UserId { get; set; }
+            public long? UserId { get; set; }
 
             [JsonPropertyName("nickname")]
             public string? Nickname { get; set; }
@@ -377,6 +395,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [CustomTypeIdentifier("xml")]
     public class XmlMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "xml";
 
         [JsonPropertyName("data")]
@@ -392,6 +411,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [CustomTypeIdentifier("json")]
     public class JsonMessage : MessageBase
     {
+        [JsonPropertyName("type")]
         public override string Type => "json";
 
         [JsonPropertyName("data")]
