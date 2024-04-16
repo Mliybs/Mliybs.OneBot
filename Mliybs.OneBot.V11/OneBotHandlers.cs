@@ -110,14 +110,14 @@ namespace Mliybs.OneBot.V11
                     }
                     else if (type == "notice")
                     {
-                        var _type = UtilHelpers.NoticeReceivers[json.RootElement.GetProperty("request_type").GetString()!];
+                        var _type = UtilHelpers.NoticeReceivers[json.RootElement.GetProperty("notice_type").GetString()!];
                         var obj = json.Deserialize(_type, UtilHelpers.Options)!;
                         if (obj is NoticeReceiver receiver) noticeReceived.OnNext(receiver);
                         else noticeReceived.OnError(new NullReferenceException());
                     }
                     else if (type == "request")
                     {
-                        var _type = UtilHelpers.RequestReceivers[json.RootElement.GetProperty("notice_type").GetString()!];
+                        var _type = UtilHelpers.RequestReceivers[json.RootElement.GetProperty("request_type").GetString()!];
                         var obj = json.Deserialize(_type, UtilHelpers.Options)!;
                         if (obj is RequestReceiver receiver) requestReceived.OnNext(receiver);
                         else requestReceived.OnError(new NullReferenceException());
