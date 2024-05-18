@@ -1,6 +1,7 @@
 using Mliybs.OneBot.V11;
 using Mliybs.OneBot.V11.Data.Messages;
 using Mliybs.OneBot.V11.Data.Receivers.Messages;
+using Mliybs.OneBot.V11.Data.Receivers.Metas;
 using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Text.Json;
@@ -10,9 +11,7 @@ AppDomain.CurrentDomain.FirstChanceException += (sender, e) =>
     Debug.WriteLine(e.Exception);
 };
 
-_ = Task.Run(() => throw new Exception()).ContinueWith(x => Console.WriteLine(x.Exception));
-
-var bot = new OneBot("ws://localhost:3001", OneBotConnectionType.WebSocket);
+using var bot = new OneBot("ws://192.168.3.3:3001", OneBotConnectionType.WebSocket);
 
 await bot.ConnectAsync();
 
@@ -22,4 +21,4 @@ var result = await bot.GetGroupMemberList(1145141919810);
 
 Debug.WriteLine(result);
 
-Console.ReadKey();
+Console.Read();

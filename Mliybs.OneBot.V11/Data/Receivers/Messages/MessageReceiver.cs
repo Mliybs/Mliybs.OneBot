@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Mliybs.OneBot.V11.Data.Messages;
 using Mliybs.OneBot.V11.Data.Receivers;
 
@@ -27,6 +28,8 @@ namespace Mliybs.OneBot.V11.Data.Receivers.Messages
 
         [JsonPropertyName("font")]
         public int Font { get; set; }
+
+        public MessageQuickOperator With(OneBot bot) => new(this, bot);
     }
 
     public interface ISender<T> where T : Sender

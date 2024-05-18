@@ -15,7 +15,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Mliybs.OneBot.V11.Utils
 {
-    internal static class UtilHelpers
+    public static class UtilHelpers
     {
         public static readonly Dictionary<string, Type> MessageReceivers = new();
 
@@ -67,19 +67,19 @@ namespace Mliybs.OneBot.V11.Utils
             }
         }
 
-        public static (string json, string id) BuildJson(this (string action, object @params) obj)
+        public static (string json, string id) BuildWebSocketJson(string action, object @params)
         {
             var id = Guid.NewGuid().ToString();
             var json = JsonSerializer.Serialize(new
             {
-                obj.action,
-                obj.@params,
+                action,
+                @params,
                 echo = id
             }, Options);
             return (json, id);
         }
 
-        public static Task<ReplyResult> WaitForReply(this string id, IOneBotHandler handler)
+        public static Task<ReplyResult> WaitForReply(this IOneBotHandler handler, string id)
         {
             TaskCompletionSource<ReplyResult> source = new();
             handler.OnReply.Add(id, x =>
@@ -105,10 +105,10 @@ namespace Mliybs.OneBot.V11.Utils
             return source.Task;
         }
 
-        public static MessageChain ToMessageChain(this IEnumerable<object?> messages) =>
+        internal static MessageChain ToMessageChain(this IEnumerable<object?> messages) =>
             new(messages.OfType<MessageBase>());
 
-        public static MessageChain DeserializeMessageChain(this JsonElement json)
+        internal static MessageChain DeserializeMessageChain(this JsonElement json)
         {
             var array = json.EnumerateArray();
             return array.Select(x => x.Deserialize(MessageTypes[x.GetProperty("type").GetString()!], Options)).ToMessageChain();

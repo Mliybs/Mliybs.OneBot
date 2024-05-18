@@ -78,6 +78,18 @@ namespace Mliybs.OneBot.V11.Data.Messages
             return this;
         }
 
+        public MessageChainBuilder At(long qq)
+        {
+            chain.Add(new AtMessage()
+            {
+                Data = new()
+                {
+                    QQ = qq.ToString()
+                }
+            });
+            return this;
+        }
+
         public MessageChainBuilder At(string qq)
         {
             chain.Add(new AtMessage()
@@ -265,5 +277,11 @@ namespace Mliybs.OneBot.V11.Data.Messages
             });
             return this;
         }
+
+        public MessageChainBuilder If(bool condition, Func<MessageChainBuilder, MessageChainBuilder> operate) =>
+            condition ? operate.Invoke(this) : this;
+
+        public MessageChainBuilder IfElse(bool condition, Func<MessageChainBuilder, MessageChainBuilder> @if, Func<MessageChainBuilder, MessageChainBuilder> @else) =>
+            condition ? @if.Invoke(this) : @else.Invoke(this);
     }
 }

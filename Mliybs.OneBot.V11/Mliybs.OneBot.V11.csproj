@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
 	<LangVersion>12</LangVersion>
 	<PackageId>Mliybs.OneBot.V11</PackageId>
-    <Version>0.9.3</Version>
+    <Version>0.9.4</Version>
     <Authors>Mliybs</Authors>
     <Company>Mlinetles</Company>
     <Description>OneBotV11的独立C#实现</Description>
