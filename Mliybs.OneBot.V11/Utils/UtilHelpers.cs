@@ -11,6 +11,7 @@ using Mliybs.OneBot.V11.Data.Receivers.Notices;
 using Mliybs.OneBot.V11.Data.Receivers.Requests;
 using Mliybs.OneBot.V11.Data.Receivers.Metas;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Mliybs.OneBot.V11.Utils
 {
@@ -35,7 +36,9 @@ namespace Mliybs.OneBot.V11.Utils
                 new StringIntConverter(),
                 new NullableStringIntConverter(),
                 new StringLongConverter(),
-                new NullableStringLongConverter()
+                new NullableStringLongConverter(),
+                new BooleanConverter(),
+                new NullableBooleanConverter()
             }
         };
 
@@ -76,24 +79,122 @@ namespace Mliybs.OneBot.V11.Utils
             return (json, id);
         }
 
-        internal static Task<ReplyResult> WaitForReply(this string id, IOneBotHandler handler)
+        public static Task<ReplyResult> WaitForReply(this string id, IOneBotHandler handler)
         {
             TaskCompletionSource<ReplyResult> source = new();
             handler.OnReply.Add(id, x =>
             {
-                handler.OnReply.Remove(id);
-                source.SetResult(x);
+                if (x.Status == "ok")
+                {
+                    handler.OnReply.Remove(id);
+                    source.SetResult(x);
+                }
+
+                else if (x.Status == "failed")
+                {
+                    handler.OnReply.Remove(id);
+                    source.SetException(new OperationFailedException(x));
+                }
+
+                else if (x.Status == "async")
+                {
+                    handler.OnReply.Remove(id);
+                    source.SetResult(x);
+                }
             });
             return source.Task;
         }
 
-        internal static MessageChain ToMessageChain(this IEnumerable<object?> messages) =>
+        public static MessageChain ToMessageChain(this IEnumerable<object?> messages) =>
             new(messages.OfType<MessageBase>());
 
         public static MessageChain DeserializeMessageChain(this JsonElement json)
         {
             var array = json.EnumerateArray();
             return array.Select(x => x.Deserialize(MessageTypes[x.GetProperty("type").GetString()!], Options)).ToMessageChain();
+        }
+
+        public static void Handle(string text,
+                IObserver<MessageReceiver> messageReceived,
+                IObserver<NoticeReceiver> noticeReceived,
+                IObserver<RequestReceiver> requestReceived,
+                IObserver<MetaReceiver> metaReceived,
+                IObserver<UnknownReceiver> unknownReceived,
+                IDictionary<string, Action<ReplyResult>> onReply)
+        {
+            var json = JsonDocument.Parse(text);
+            if (json.RootElement.TryGetProperty("post_type", out var element))
+            {
+                var type = element.GetString();
+                if (type == "message")
+                {
+                    try
+                    {
+                        var _type = MessageReceivers[json.RootElement.GetProperty("message_type").GetString()!];
+                        var obj = json.Deserialize(_type, Options)!;
+                        typeof(MessageReceiver).GetProperty("Message")!
+                            .SetValue(obj, json.RootElement.GetProperty("message")!.DeserializeMessageChain());
+                        messageReceived.OnNext((MessageReceiver)obj ?? throw new NullReferenceException());
+                    }
+                    catch (Exception e)
+                    {
+                        messageReceived.OnError(e);
+                    }
+                }
+                else if (type == "notice")
+                {
+                    try
+                    {
+                        var _type = NoticeReceivers[json.RootElement.GetProperty("notice_type").GetString()!];
+                        var obj = json.Deserialize(_type, Options)!;
+                        noticeReceived.OnNext((NoticeReceiver)obj ?? throw new NullReferenceException());
+                    }
+                    catch (Exception e)
+                    {
+                        noticeReceived.OnError(e);
+                    }
+                }
+                else if (type == "request")
+                {
+                    try
+                    {
+                        var _type = RequestReceivers[json.RootElement.GetProperty("request_type").GetString()!];
+                        var obj = json.Deserialize(_type, Options)!;
+                        requestReceived.OnNext((RequestReceiver)obj ?? throw new NullReferenceException());
+                    }
+                    catch (Exception e)
+                    {
+                        requestReceived.OnError(e);
+                    }
+                }
+                else if (type == "meta_event")
+                {
+                    try
+                    {
+                        var _type = MetaReceivers[json.RootElement.GetProperty("meta_event_type").GetString()!];
+                        var obj = json.Deserialize(_type, Options)!;
+                        metaReceived.OnNext((MetaReceiver)obj ?? throw new NullReferenceException());
+                    }
+                    catch (Exception e)
+                    {
+                        metaReceived.OnError(e);
+                    }
+                }
+                else unknownReceived.OnNext(new UnknownReceiver
+                {
+                    RawText = text
+                });
+            }
+            else
+            {
+                try
+                {
+                    var result = json.Deserialize<ReplyResult>(Options)!;
+                    result.Data = json.RootElement.GetProperty("data");
+                    if (onReply.TryGetValue(result.Echo ?? throw new NullReferenceException(), out var action)) action.Invoke(result);
+                }
+                catch { }
+            }
         }
     }
 }

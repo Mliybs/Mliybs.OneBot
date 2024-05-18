@@ -222,6 +222,8 @@ namespace Mliybs.OneBot.V11.Data
     {
         [JsonPropertyName("yes")]
         public bool Yes { get; set; }
+
+        public static implicit operator bool(BooleanInfo info) => info.Yes;
     }
 
     public class StatusInfo

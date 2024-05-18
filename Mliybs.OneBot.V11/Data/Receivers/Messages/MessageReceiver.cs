@@ -29,6 +29,11 @@ namespace Mliybs.OneBot.V11.Data.Receivers.Messages
         public int Font { get; set; }
     }
 
+    public interface ISender<T> where T : Sender
+    {
+        public T Sender { get; set; }
+    }
+
 #nullable enable
     public class Sender
     {

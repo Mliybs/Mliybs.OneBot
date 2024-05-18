@@ -52,7 +52,9 @@ namespace Mliybs.OneBot.V11.Utils
     {
         public override int? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonTokenType.String)
+            if (reader.TokenType == JsonTokenType.Null) return null;
+
+            else if (reader.TokenType == JsonTokenType.String)
             {
                 var text = reader.GetString();
                 if (string.IsNullOrEmpty(text)) return null;
@@ -93,7 +95,9 @@ namespace Mliybs.OneBot.V11.Utils
     {
         public override long? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonTokenType.String)
+            if (reader.TokenType == JsonTokenType.Null) return null;
+
+            else if (reader.TokenType == JsonTokenType.String)
             {
                 var text = reader.GetString();
                 if (string.IsNullOrEmpty(text)) return null;
@@ -106,6 +110,53 @@ namespace Mliybs.OneBot.V11.Utils
         public override void Write(Utf8JsonWriter writer, long? value, JsonSerializerOptions options)
         {
             if (value.HasValue) writer.WriteNumberValue(value.Value);
+            else writer.WriteNullValue();
+        }
+    }
+
+    public class BooleanConverter : JsonConverter<bool>
+    {
+        public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.String)
+            {
+                var text = reader.GetString();
+                if (string.IsNullOrEmpty(text)) return false;
+                return bool.Parse(text);
+            }
+
+            else if (reader.TokenType == JsonTokenType.Number) return Convert.ToBoolean(reader.GetInt32());
+
+            else return reader.GetBoolean();
+        }
+
+        public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options)
+        {
+            writer.WriteBooleanValue(value);
+        }
+    }
+
+    public class NullableBooleanConverter : JsonConverter<bool?>
+    {
+        public override bool? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.Null) return null;
+
+            else if (reader.TokenType == JsonTokenType.String)
+            {
+                var text = reader.GetString();
+                if (string.IsNullOrEmpty(text)) return null;
+                return bool.Parse(text);
+            }
+
+            else if (reader.TokenType == JsonTokenType.Number) return Convert.ToBoolean(reader.GetInt32());
+
+            else return reader.GetBoolean();
+        }
+
+        public override void Write(Utf8JsonWriter writer, bool? value, JsonSerializerOptions options)
+        {
+            if (value.HasValue) writer.WriteBooleanValue(value.Value);
             else writer.WriteNullValue();
         }
     }

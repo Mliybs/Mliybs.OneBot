@@ -52,9 +52,9 @@ namespace Mliybs.OneBot.V11
 
         public async Task ConnectAsync() => await handler.ConnectAsync();
 
-        public async Task<Message> SendPrivateMsg(long userId, MessageChain message, bool autoEscape = false)
+        public async Task<Message> SendPrivateMessage(long userId, MessageChain message, bool autoEscape = false)
         {
-            var (json, id) = ("send_private_msg", new
+            var (json, id) = (OneBotStatics.SendPrivateMessage, new
             {
                 user_id = userId,
                 message,
@@ -65,9 +65,9 @@ namespace Mliybs.OneBot.V11
             return (await task).Data.Deserialize<Message>()!;
         }
 
-        public async Task<Message> SendGroupMsg(long groupId, MessageChain message, bool autoEscape = false)
+        public async Task<Message> SendGroupMessage(long groupId, MessageChain message, bool autoEscape = false)
         {
-            var (json, id) = ("send_group_msg", new
+            var (json, id) = (OneBotStatics.SendGroupMessage, new
             {
                 group_id = groupId,
                 message,
@@ -78,37 +78,37 @@ namespace Mliybs.OneBot.V11
             return (await task).Data.Deserialize<Message>()!;
         }
 
-        public async Task<Message> SendMsg(OneBotMessageType messageType, long id, MessageChain message, bool autoEscape = false)
+        public async Task<Message> SendMessage(OneBotMessageType messageType, long id, MessageChain message, bool autoEscape = false)
         {
             object obj = messageType switch
             {
                 OneBotMessageType.Private => new { user_id = id, message, auto_escape = autoEscape },
                 OneBotMessageType.Group => new { group_id = id, message, auto_escape = autoEscape },
-                _ => throw new ArgumentException()
+                _ => throw new ArgumentException("消息类型不正确！", nameof(messageType))
             };
-            var (json, _id) = ("send_msg", obj).BuildJson();
+            var (json, _id) = (OneBotStatics.SendMessage, obj).BuildJson();
             var task = _id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<Message>()!;
         }
 
-        public async Task DeleteMsg(int messageId)
+        public async Task DeleteMessage(int messageId)
         {
-            var (json, id) = ("delete_msg", new { message_id = messageId }).BuildJson();
+            var (json, id) = (OneBotStatics.DeleteMessage, new { message_id = messageId }).BuildJson();
             await handler.SendAsync(json);
         }
 
-        public async Task<DetailedMessage> GetMsg(int messageId)
+        public async Task<DetailedMessage> GetMessage(int messageId)
         {
-            var (json, id) = ("get_msg", new { message_id = messageId }).BuildJson();
+            var (json, id) = (OneBotStatics.GetMessage, new { message_id = messageId }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<DetailedMessage>()!;
         }
 
-        public async Task<NodeMessages> GetForwardMsg(string messageId)
+        public async Task<NodeMessages> GetForwardMessage(string messageId)
         {
-            var (json, id) = ("get_forward", new { id = messageId }).BuildJson();
+            var (json, id) = (OneBotStatics.GetForwardMessage, new { id = messageId }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             var data = (await task).Data;
@@ -121,13 +121,13 @@ namespace Mliybs.OneBot.V11
 
         public async Task SendLike(long userId, int times = 1)
         {
-            var (json, id) = ("send_like", new { user_id = userId, times }).BuildJson();
+            var (json, id) = (OneBotStatics.SendLike, new { user_id = userId, times }).BuildJson();
             await handler.SendAsync(json);
         }
 
         public async Task SetGroupKick(long groupId, long userId, bool rejectAddRequest = false)
         {
-            var (json, id) = ("set_group_kick", new
+            var (json, id) = (OneBotStatics.SetGroupKick, new
             {
                 group_id = groupId,
                 user_id = userId,
@@ -138,7 +138,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task SetGroupBan(long groupId, long userId, long duration = 30 * 60)
         {
-            var (json, id) = ("set_group_ban", new
+            var (json, id) = (OneBotStatics.SetGroupBan, new
             {
                 group_id = groupId,
                 user_id = userId,
@@ -149,7 +149,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task SetGroupAnonymousBan(long groupId, Anonymous anonymous, long duration = 30 * 60)
         {
-            var (json, id) = ("set_group_anonymous_ban", new
+            var (json, id) = (OneBotStatics.SetGroupAnonymousBan, new
             {
                 group_id = groupId,
                 anonymous,
@@ -160,7 +160,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task SetGroupAnonymousBan(long groupId, string flag, long duration = 30 * 60)
         {
-            var (json, id) = ("set_group_anonymous_ban", new
+            var (json, id) = (OneBotStatics.SetGroupAnonymousBan, new
             {
                 group_id = groupId,
                 anonymous_flag = flag,
@@ -171,13 +171,13 @@ namespace Mliybs.OneBot.V11
 
         public async Task SetGroupWholeBan(long groupId, bool enable = true)
         {
-            var (json, id) = ("set_group_whole_ban", new { group_id = groupId, enable }).BuildJson();
+            var (json, id) = (OneBotStatics.SetGroupWholeBan, new { group_id = groupId, enable }).BuildJson();
             await handler.SendAsync(json);
         }
 
         public async Task SetGroupAdmin(long groupId, long userId, bool enable = true)
         {
-            var (json, id) = ("set_group_admin", new
+            var (json, id) = (OneBotStatics.SetGroupAdmin, new
             {
                 group_id = groupId,
                 user_id = userId,
@@ -188,13 +188,13 @@ namespace Mliybs.OneBot.V11
 
         public async Task SetGroupAnonymous(long groupId, bool enable = true)
         {
-            var (json, id) = ("set_group_anonymous", new { group_id = groupId, enable, }).BuildJson();
+            var (json, id) = (OneBotStatics.SetGroupAnonymous, new { group_id = groupId, enable, }).BuildJson();
             await handler.SendAsync(json);
         }
 
         public async Task SetGroupCard(long groupId, long userId, string card = "")
         {
-            var (json, id) = ("set_group_card", new
+            var (json, id) = (OneBotStatics.SetGroupCard, new
             {
                 group_id = groupId,
                 user_id = userId,
@@ -205,19 +205,19 @@ namespace Mliybs.OneBot.V11
 
         public async Task SetGroupName(long groupId, string groupName)
         {
-            var (json, id) = ("set_group_name", new { group_id = groupId, group_name = groupName }).BuildJson();
+            var (json, id) = (OneBotStatics.SetGroupName, new { group_id = groupId, group_name = groupName }).BuildJson();
             await handler.SendAsync(json);
         }
 
         public async Task SetGroupLeave(long groupId, bool isDismiss)
         {
-            var (json, id) = ("set_group_leave", new { group_id = groupId, is_dismiss = isDismiss }).BuildJson();
+            var (json, id) = (OneBotStatics.SetGroupLeave, new { group_id = groupId, is_dismiss = isDismiss }).BuildJson();
             await handler.SendAsync(json);
         }
 
         public async Task SetGroupSpecialTitle(long groupId, long userId, string specialTitle, long duration = -1)
         {
-            var (json, id) = ("set_group_special_title", new
+            var (json, id) = (OneBotStatics.SetGroupSpecialTitle, new
             {
                 group_id = groupId,
                 user_id = userId,
@@ -229,7 +229,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task SetFriendAddRequest(string flag, bool approve = true, string remark = "")
         {
-            var (json, id) = ("set_friend_add_request", new { flag, approve, remark }).BuildJson();
+            var (json, id) = (OneBotStatics.SetFriendAddRequest, new { flag, approve, remark }).BuildJson();
             await handler.SendAsync(json);
         }
 
@@ -239,15 +239,15 @@ namespace Mliybs.OneBot.V11
             {
                 GroupRequestReceiver.GroupRequestType.Add => new { flag, type = "add", approve, reason },
                 GroupRequestReceiver.GroupRequestType.Invite => new { flag, type = "invite", approve, reason },
-                _ => throw new ArgumentException()
+                _ => throw new ArgumentException("请求类型不正确！", nameof(type))
             };
-            var (json, id) = ("set_group_add_request", obj).BuildJson();
+            var (json, id) = (OneBotStatics.SetFriendAddRequest, obj).BuildJson();
             await handler.SendAsync(json);
         }
 
         public async Task<LoginInfo> GetLoginInfo()
         {
-            var (json, id) = ("get_login_info", new { }).BuildJson();
+            var (json, id) = (OneBotStatics.GetLoginInfo, new { }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<LoginInfo>()!;
@@ -255,7 +255,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task<StrangerInfo> GetStrangerInfo(long userId, bool noCache = false)
         {
-            var (json, id) = ("get_stranger_info", new { user_id = userId, no_cache = noCache }).BuildJson();
+            var (json, id) = (OneBotStatics.GetStrangerInfo, new { user_id = userId, no_cache = noCache }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<StrangerInfo>()!;
@@ -263,7 +263,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task<FriendInfo[]> GetFriendList()
         {
-            var (json, id) = ("get_friend_list", new { }).BuildJson();
+            var (json, id) = (OneBotStatics.GetFriendList, new { }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<FriendInfo[]>()!;
@@ -271,7 +271,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task<GroupInfo> GetGroupInfo(long groupId, bool noCache = false)
         {
-            var (json, id) = ("get_group_info", new { group_id = groupId, no_cache = noCache }).BuildJson();
+            var (json, id) = (OneBotStatics.GetGroupInfo, new { group_id = groupId, no_cache = noCache }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<GroupInfo>()!;
@@ -279,7 +279,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task<GroupInfo[]> GetGroupList()
         {
-            var (json, id) = ("get_group_list", new { }).BuildJson();
+            var (json, id) = (OneBotStatics.GetGroupList, new { }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<GroupInfo[]>()!;
@@ -287,7 +287,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task<GroupMemberInfo> GetGroupMemberInfo(long groupId, long userId, bool noCache = false)
         {
-            var (json, id) = ("get_group_member_info", new
+            var (json, id) = (OneBotStatics.GetGroupMemberInfo, new
             {
                 group_id = groupId,
                 user_id = userId,
@@ -300,7 +300,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task<GroupMemberInfo[]> GetGroupMemberList(long groupId)
         {
-            var (json, id) = ("get_group_member_list", new { group_id = groupId }).BuildJson();
+            var (json, id) = (OneBotStatics.GetGroupMemberList, new { group_id = groupId }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<GroupMemberInfo[]>()!;
@@ -308,7 +308,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task<HonorInfos> GetGroupHonorInfo(long groupId, string type)
         {
-            var (json, id) = ("get_group_honor_info", new
+            var (json, id) = (OneBotStatics.GetGroupHonorInfo, new
             {
                 group_id = groupId,
                 type
@@ -320,7 +320,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task<CookiesInfo> GetCookies(string domain)
         {
-            var (json, id) = ("get_cookies", new { domain }).BuildJson();
+            var (json, id) = (OneBotStatics.GetCookies, new { domain }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<CookiesInfo>()!;
@@ -328,7 +328,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task<CsrfInfo> GetCsrfToken()
         {
-            var (json, id) = ("get_csrf_token", new { }).BuildJson();
+            var (json, id) = (OneBotStatics.GetCsrfToken, new { }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<CsrfInfo>()!;
@@ -336,7 +336,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task<Credentials> GetCredentials(string domain)
         {
-            var (json, id) = ("get_credentials", new { domain }).BuildJson();
+            var (json, id) = (OneBotStatics.GetCredentials, new { domain }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<Credentials>()!;
@@ -344,7 +344,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task<FileInfo> GetRecord(string file, string outFormat)
         {
-            var (json, id) = ("get_record", new { file, out_format = outFormat }).BuildJson();
+            var (json, id) = (OneBotStatics.GetRecord, new { file, out_format = outFormat }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<FileInfo>()!;
@@ -352,23 +352,23 @@ namespace Mliybs.OneBot.V11
 
         public async Task<FileInfo> GetImage(string file)
         {
-            var (json, id) = ("get_image", new { file }).BuildJson();
+            var (json, id) = (OneBotStatics.GetImage, new { file }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<FileInfo>()!;
         }
 
-        public async Task<BooleanInfo> CanSendImage()
+        public async Task<bool> CanSendImage()
         {
-            var (json, id) = ("can_send_image", new { }).BuildJson();
+            var (json, id) = (OneBotStatics.CanSendImage, new { }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<BooleanInfo>()!;
         }
 
-        public async Task<BooleanInfo> CanSendRecord()
+        public async Task<bool> CanSendRecord()
         {
-            var (json, id) = ("can_send_record", new { }).BuildJson();
+            var (json, id) = (OneBotStatics.CanSendRecord, new { }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<BooleanInfo>()!;
@@ -376,7 +376,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task<StatusInfo> GetStatus()
         {
-            var (json, id) = ("get_status", new { }).BuildJson();
+            var (json, id) = (OneBotStatics.GetStatus, new { }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<StatusInfo>()!;
@@ -384,7 +384,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task<VersionInfo> GetVersionInfo()
         {
-            var (json, id) = ("get_version_info", new { }).BuildJson();
+            var (json, id) = (OneBotStatics.GetVersionInfo, new { }).BuildJson();
             var task = id.WaitForReply(handler);
             await handler.SendAsync(json);
             return (await task).Data.Deserialize<VersionInfo>()!;
@@ -392,13 +392,13 @@ namespace Mliybs.OneBot.V11
 
         public async Task SetRestart(int delay)
         {
-            var (json, id) = ("set_restart", new { delay }).BuildJson();
+            var (json, id) = (OneBotStatics.SetRestart, new { delay }).BuildJson();
             await handler.SendAsync(json);
         }
 
         public async Task CleanCache()
         {
-            var (json, id) = ("clean_cache", new { }).BuildJson();
+            var (json, id) = (OneBotStatics.CleanCache, new { }).BuildJson();
             await handler.SendAsync(json);
         }
 

@@ -10,6 +10,8 @@ AppDomain.CurrentDomain.FirstChanceException += (sender, e) =>
     Debug.WriteLine(e.Exception);
 };
 
+_ = Task.Run(() => throw new Exception()).ContinueWith(x => Console.WriteLine(x.Exception));
+
 var bot = new OneBot("ws://localhost:3001", OneBotConnectionType.WebSocket);
 
 await bot.ConnectAsync();

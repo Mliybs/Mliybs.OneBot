@@ -17,6 +17,7 @@ using Mliybs.OneBot.V11.Data.Receivers.Messages;
 using Mliybs.OneBot.V11.Data.Receivers.Notices;
 using Mliybs.OneBot.V11.Data.Receivers.Requests;
 using Mliybs.OneBot.V11.Data.Receivers.Metas;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Mliybs.OneBot.V11
 {
@@ -95,55 +96,7 @@ namespace Mliybs.OneBot.V11
                         bytes = _bytes;
                     }
                 }
-                var json = JsonDocument.Parse(text);
-                if (json.RootElement.TryGetProperty("post_type", out var element))
-                {
-                    var type = element.GetString();
-                    if (type == "message")
-                    {
-                        var _type = UtilHelpers.MessageReceivers[json.RootElement.GetProperty("message_type").GetString()!];
-                        var obj = json.Deserialize(_type, UtilHelpers.Options)!;
-                        typeof(MessageReceiver).GetProperty("Message")!
-                            .SetValue(obj, json.RootElement.GetProperty("message")!.DeserializeMessageChain());
-                        if (obj is MessageReceiver receiver) messageReceived.OnNext(receiver);
-                        else messageReceived.OnError(new NullReferenceException());
-                    }
-                    else if (type == "notice")
-                    {
-                        var _type = UtilHelpers.NoticeReceivers[json.RootElement.GetProperty("notice_type").GetString()!];
-                        var obj = json.Deserialize(_type, UtilHelpers.Options)!;
-                        if (obj is NoticeReceiver receiver) noticeReceived.OnNext(receiver);
-                        else noticeReceived.OnError(new NullReferenceException());
-                    }
-                    else if (type == "request")
-                    {
-                        var _type = UtilHelpers.RequestReceivers[json.RootElement.GetProperty("request_type").GetString()!];
-                        var obj = json.Deserialize(_type, UtilHelpers.Options)!;
-                        if (obj is RequestReceiver receiver) requestReceived.OnNext(receiver);
-                        else requestReceived.OnError(new NullReferenceException());
-                    }
-                    else if (type == "meta_event")
-                    {
-                        var _type = UtilHelpers.MetaReceivers[json.RootElement.GetProperty("meta_event_type").GetString()!];
-                        var obj = json.Deserialize(_type, UtilHelpers.Options)!;
-                        if (obj is MetaReceiver receiver) metaReceived.OnNext(receiver);
-                        else metaReceived.OnError(new NullReferenceException());
-                    }
-                    else unknownReceived.OnNext(new UnknownReceiver
-                    {
-                        RawText = text
-                    });
-                }
-                else
-                {
-                    var result = json.Deserialize<ReplyResult>(UtilHelpers.Options);
-                    if (result is null) throw new NullReferenceException();
-                    else
-                    {
-                        result.Data = json.RootElement.GetProperty("data");
-                        if (onReply.TryGetValue(result.Echo ?? string.Empty, out var action)) action.Invoke(result);
-                    }
-                }
+                UtilHelpers.Handle(text, messageReceived, noticeReceived, requestReceived, metaReceived, unknownReceived, onReply);
             }
         }
 

@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 namespace Mliybs.OneBot.V11.Data.Receivers.Messages
 {
     [CustomTypeIdentifier("group")]
-    public class GroupMessageReceiver : MessageReceiver
+    public class GroupMessageReceiver : MessageReceiver, ISender<GroupSender>
     {
         [JsonPropertyName("sub_type"), JsonConverter(typeof(JsonStringEnumConverter))]
         public GroupType SubType { get; set; }
