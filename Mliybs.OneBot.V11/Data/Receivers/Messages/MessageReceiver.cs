@@ -32,11 +32,6 @@ namespace Mliybs.OneBot.V11.Data.Receivers.Messages
         public MessageQuickOperator With(OneBot bot) => new(this, bot);
     }
 
-    public interface ISender<T> where T : Sender
-    {
-        public T Sender { get; set; }
-    }
-
 #nullable enable
     public class Sender
     {

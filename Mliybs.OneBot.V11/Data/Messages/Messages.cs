@@ -21,6 +21,8 @@ namespace Mliybs.OneBot.V11.Data.Messages
             [JsonPropertyName("text")]
             public string Text { get; set; }
         }
+
+        public override string GetCQCode() => Data.Text;
     }
 
     [CustomTypeIdentifier("image")]

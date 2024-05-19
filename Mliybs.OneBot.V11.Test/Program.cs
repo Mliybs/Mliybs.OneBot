@@ -15,7 +15,10 @@ using var bot = new OneBot("ws://192.168.3.3:3001", OneBotConnectionType.WebSock
 
 await bot.ConnectAsync();
 
-Console.ReadKey();
+bot.MessageReceived
+    .Subscribe(x => _ = x.With(bot).Send(x.Message.GetCQCode()));
+
+Console.Read();
 
 var result = await bot.GetGroupMemberList(1145141919810);
 

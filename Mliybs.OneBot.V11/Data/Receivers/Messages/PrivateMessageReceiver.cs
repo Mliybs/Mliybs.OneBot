@@ -8,7 +8,7 @@ namespace Mliybs.OneBot.V11.Data.Receivers.Messages
 {
 #nullable disable
     [CustomTypeIdentifier("private")]
-    public class PrivateMessageReceiver : MessageReceiver, ISender<Sender>
+    public class PrivateMessageReceiver : MessageReceiver
     {
         [JsonPropertyName("sub_type"), JsonConverter(typeof(JsonStringEnumConverter))]
         public PrivateType SubType { get; set; }
