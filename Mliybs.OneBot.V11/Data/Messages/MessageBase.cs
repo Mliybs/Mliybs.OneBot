@@ -11,9 +11,8 @@ namespace Mliybs.OneBot.V11.Data.Messages
         [JsonPropertyName("type")]
         public abstract string Type { get; }
 
-        public virtual string GetCQCode()
+        public virtual StringBuilder GetCQCode(StringBuilder builder)
         {
-            var builder = new StringBuilder();
             builder.Append($"[CQ:{Type}");
             var props = GetType().GetProperty("Data")?.PropertyType.GetProperties();
             if (props != null)
@@ -30,7 +29,9 @@ namespace Mliybs.OneBot.V11.Data.Messages
                         .Replace(",", "&#44;")}");
                 }
             builder.Append(']');
-            return builder.ToString();
+            return builder;
         }
+
+        public string GetCQCode() => GetCQCode(new()).ToString();
     }
 }

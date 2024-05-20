@@ -18,6 +18,12 @@ namespace Mliybs.OneBot.V11.Data.Messages
             return this;
         }
 
+        public MessageChainBuilder AddRange(IEnumerable<MessageBase> messages)
+        {
+            chain.AddRange(messages);
+            return this;
+        }
+
         public MessageChainBuilder Text(string text)
         {
             chain.Add(new TextMessage()

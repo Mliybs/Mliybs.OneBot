@@ -22,7 +22,36 @@ namespace Mliybs.OneBot.V11.Data.Messages
             public string Text { get; set; }
         }
 
-        public override string GetCQCode() => Data.Text;
+        public override StringBuilder GetCQCode(StringBuilder builder) =>
+            builder.Append(Data.Text);
+
+        public static implicit operator string(TextMessage message) =>
+            message.Data.Text;
+
+        public static implicit operator TextMessage(string text) =>
+        new()
+        {
+            Data = new()
+            {
+                Text = text
+            }
+        };
+
+        public static bool operator ==(TextMessage message, string text) =>
+            message.Data.Text == text;
+
+        public static bool operator !=(TextMessage message, string text) =>
+            message.Data.Text != text;
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 
     [CustomTypeIdentifier("image")]
@@ -417,9 +446,9 @@ namespace Mliybs.OneBot.V11.Data.Messages
         public override string Type => "json";
 
         [JsonPropertyName("data")]
-        public XmlData Data { get; set; }
+        public JsonData Data { get; set; }
 
-        public class XmlData
+        public class JsonData
         {
             [JsonPropertyName("data")]
             public string Data { get; set; }

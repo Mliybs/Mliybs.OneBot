@@ -12,12 +12,12 @@ namespace Mliybs.OneBot.V11.Data.Messages
         public MessageChain() { }
         public MessageChain(IEnumerable<MessageBase> messages) : base(messages) { }
 
-        public ReplyMessage? BeReplied => Find(x => x is ReplyMessage) as ReplyMessage;
+        public ReplyMessage? Reply => Find(x => x is ReplyMessage) as ReplyMessage;
 
         public string GetCQCode()
         {
             var builder = new StringBuilder();
-            ForEach(x => builder.Append(x.GetCQCode()));
+            ForEach(x => x.GetCQCode(builder));
             return builder.ToString();
         }
 
@@ -31,22 +31,41 @@ namespace Mliybs.OneBot.V11.Data.Messages
             return builder.ToString();
         }
 
-        public MessageChain NoReplyAtFirst()
+        public bool NoReplyCompare(string text) => NoReply() == text;
+
+        public MessageChain NoReply() => NoReply(out var _);
+
+        public MessageChain NoReply(out bool changed)
         {
             switch (this)
             {
                 case [ReplyMessage, AtMessage, TextMessage text, ..]:
                     if (text.Data.Text.StartsWith(' ')) text.Data.Text = text.Data.Text[1..];
                     RemoveRange(0, 2);
+                    changed = true;
+                    return this;
+                
+                case [ReplyMessage, TextMessage, ..]:
+                    RemoveAt(0);
+                    changed = true;
                     return this;
                 
                 case [AtMessage, TextMessage text, ..]:
                     if (text.Data.Text.StartsWith(' ')) text.Data.Text = text.Data.Text[1..];
                     RemoveAt(0);
+                    changed = true;
                     return this;
 
-                default: return this;
+                default:
+                    changed = false;
+                    return this;
             }
+        }
+
+        public new MessageChain AddRange(IEnumerable<MessageBase> items)
+        {
+            foreach (var item in items) Add(item);
+            return this;
         }
 
         public static implicit operator MessageChain(string text) => new()
@@ -59,5 +78,30 @@ namespace Mliybs.OneBot.V11.Data.Messages
                 }
             }
         };
+
+        public static MessageChain operator +(MessageChain left, MessageChain right) =>
+            left.AddRange(right);
+
+        public static bool operator ==(MessageChain chain, string text)
+        {
+            if (chain is [TextMessage message]) return message == text;
+            return false;
+        }
+
+        public static bool operator !=(MessageChain chain, string text)
+        {
+            if (chain is [TextMessage message]) return message != text;
+            return true;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }
