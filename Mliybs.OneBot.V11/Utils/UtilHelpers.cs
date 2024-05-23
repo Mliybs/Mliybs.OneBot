@@ -67,7 +67,7 @@ namespace Mliybs.OneBot.V11.Utils
             }
         }
 
-        public static (string json, string id) BuildWebSocketJson(string action, object @params)
+        internal static (string json, string id) BuildWebSocketJson(string action, object @params)
         {
             var id = Guid.NewGuid().ToString();
             var json = JsonSerializer.Serialize(new

@@ -7,6 +7,7 @@ using Mliybs.OneBot.V11.Data.Receivers.Notices;
 using Mliybs.OneBot.V11.Data.Receivers.Requests;
 using Mliybs.OneBot.V11.Utils;
 using System;
+using System.Net.WebSockets;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json;
@@ -18,7 +19,6 @@ namespace Mliybs.OneBot.V11
     public enum OneBotConnectionType
     {
         HTTP,
-        HTTP_POST,
         WebSocket,
         WebSocketReverse
     }
@@ -31,26 +31,23 @@ namespace Mliybs.OneBot.V11
 
     public class OneBot : IDisposable
     {
-        protected readonly IOneBotHandler handler;
+        protected IOneBotHandler handler;
 
-        public OneBot(Uri uri, OneBotConnectionType connectionType, string? token = null)
-        {
-            switch (connectionType)
-            {
-                case OneBotConnectionType.WebSocket:
-                    handler = new WebsocketOneBotHandler(uri, token);
-                    break;
+        public static OneBot Http(string url, string local, string? token = null) => new(new HttpOneBotHandler(url, local, token));
 
-                default: throw new NotImplementedException();
-            }
-        }
+        public static OneBot Websocket(Uri uri, string? token = null) => new(new WebsocketOneBotHandler(uri, token));
 
-        public OneBot(string url, OneBotConnectionType connectionType, string? token = null)
-            : this(new Uri(url), connectionType, token) { }
+        public static OneBot Websocket(string url, string? token = null) => new(new WebsocketOneBotHandler(new(url), token));
+
+        public static OneBot Websocket(Uri uri, out Action reconnect, string? token = null) => new(new WebsocketOneBotHandler(uri, out reconnect, token));
+
+        public static OneBot Websocket(string url, out Action reconnect, string? token = null) => new(new WebsocketOneBotHandler(new(url), out reconnect, token));
+
+        public static OneBot WebsocketReverse(string url, string? token = null) => new(new WebsocketReverseOneBotHandler(url, token));
+
+        public static OneBot WebsocketReverse(string url, out Func<bool> connected, string? token = null) => new(new WebsocketReverseOneBotHandler(url, out connected, token));
 
         public OneBot(IOneBotHandler botHandler) => handler = botHandler;
-
-        public async Task ConnectAsync() => await handler.ConnectAsync();
 
         public void Dispose() => handler.Dispose();
 
