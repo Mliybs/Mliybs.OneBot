@@ -21,7 +21,7 @@ namespace Mliybs.OneBot.V11.Data
             if (receiver is PrivateMessageReceiver @private)
                 return await bot.SendPrivateMessage(@private.UserId, message);
 
-            else throw new InvalidOperationException("receiver类型不支持！");
+            throw new InvalidOperationException("receiver类型不支持！");
         }
 
         public async Task<Message> SendRandom(params MessageChain[] messages)
@@ -58,7 +58,7 @@ namespace Mliybs.OneBot.V11.Data
                 return await bot.SendPrivateMessage(@private.UserId, message);
             }
 
-            else throw new InvalidOperationException("receiver类型不支持！");
+            throw new InvalidOperationException("receiver类型不支持！");
         }
 
         public async Task<Message> ReplyRandom(params MessageChain[] messages)

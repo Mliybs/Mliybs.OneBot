@@ -41,6 +41,8 @@ namespace Mliybs.OneBot.V11
 
     internal class WebsocketOneBotHandler : IOneBotHandler
     {
+        private CancellationTokenSource source = new();
+
         private ClientWebSocket socket = new();
 
         private readonly Subject<MessageReceiver> messageReceived = new();
@@ -58,14 +60,18 @@ namespace Mliybs.OneBot.V11
         public WebsocketOneBotHandler(Uri uri, string? token = null)
         {
             if (token is not null) socket.Options.SetRequestHeader("Authorization", "Bearer " + token);
-            socket.ConnectAsync(uri, CancellationToken.None).Wait();
+            socket.ConnectAsync(uri, source.Token).Wait();
             _ = Run();
         }
 
-        public WebsocketOneBotHandler(Uri uri, out Action reconnect, string? token) : this(uri, token)
+        public WebsocketOneBotHandler(Uri uri, out Action reconnect, string? token = null) : this(uri, token)
         {
             reconnect = () =>
             {
+                source.Cancel();
+                source.Dispose();
+                source = new();
+                socket.Abort();
                 socket.Dispose();
                 socket = new();
                 socket.ConnectAsync(uri, CancellationToken.None).Wait();
@@ -84,7 +90,7 @@ namespace Mliybs.OneBot.V11
                     string text;
                     while (true)
                     {
-                        var result = await socket.ReceiveAsync(bytes.AsMemory(read), CancellationToken.None);
+                        var result = await socket.ReceiveAsync(bytes.AsMemory(read), source.Token);
                         if (result.EndOfMessage)
                         {
                             text = Encoding.UTF8.GetString(bytes.AsSpan(0, read + result.Count));
@@ -104,7 +110,7 @@ namespace Mliybs.OneBot.V11
                     if (string.IsNullOrEmpty(text)) break;
                     UtilHelpers.Handle(text, messageReceived, noticeReceived, requestReceived, metaReceived, unknownReceived, onReply);
                 }
-                catch (InvalidOperationException)
+                catch (OperationCanceledException)
                 {
                     break;
                 }
@@ -116,12 +122,15 @@ namespace Mliybs.OneBot.V11
             var (json, id) = UtilHelpers.BuildWebSocketJson(action, data);
             var bytes = Encoding.UTF8.GetBytes(json);
             var task = this.WaitForReply(id);
-            await socket.SendAsync(bytes, WebSocketMessageType.Text, true, CancellationToken.None);
+            await socket.SendAsync(bytes, WebSocketMessageType.Text, true, source.Token);
             return await task;
         }
 
         public void Dispose()
         {
+            source.Cancel();
+            source.Dispose();
+            socket.Abort();
             socket.Dispose();
         }
 
@@ -250,6 +259,8 @@ namespace Mliybs.OneBot.V11
 
     internal class WebsocketReverseOneBotHandler : IOneBotHandler
     {
+        private CancellationTokenSource source = new();
+
         private WebSocket? socket = null;
 
         private readonly string url;
@@ -332,7 +343,7 @@ namespace Mliybs.OneBot.V11
                         string text;
                         while (true)
                         {
-                            var result = await socket.ReceiveAsync(bytes.AsMemory(read), CancellationToken.None);
+                            var result = await socket.ReceiveAsync(bytes.AsMemory(read), source.Token);
                             if (result.EndOfMessage)
                             {
                                 text = Encoding.UTF8.GetString(bytes.AsSpan(0, read + result.Count));
@@ -367,7 +378,7 @@ namespace Mliybs.OneBot.V11
             var (json, id) = UtilHelpers.BuildWebSocketJson(action, data);
             var bytes = Encoding.UTF8.GetBytes(json);
             var task = this.WaitForReply(id);
-            await socket!.SendAsync(bytes, WebSocketMessageType.Text, true, CancellationToken.None);
+            await socket!.SendAsync(bytes, WebSocketMessageType.Text, true, source.Token);
             return await task;
         }
 
