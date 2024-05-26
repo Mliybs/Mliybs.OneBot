@@ -20,7 +20,7 @@ namespace Mliybs.OneBot.V11.Data.Receivers.Messages
         [JsonPropertyName("user_id")]
         public long UserId { get; set; }
 
-        [JsonPropertyName("message"), JsonIgnore]
+        [JsonPropertyName("message")]
         public MessageChain Message { get; set; }
 
         [JsonPropertyName("raw_message")]

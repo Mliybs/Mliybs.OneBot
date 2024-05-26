@@ -132,8 +132,6 @@ namespace Mliybs.OneBot.V11.Utils
                     {
                         var _type = MessageReceivers[json.RootElement.GetProperty("message_type").GetString()!];
                         var obj = json.Deserialize(_type, Options)!;
-                        typeof(MessageReceiver).GetProperty("Message")!
-                            .SetValue(obj, json.RootElement.GetProperty("message")!.DeserializeMessageChain());
                         messageReceived.OnNext((MessageReceiver)obj ?? throw new NullReferenceException());
                     }
                     catch (Exception e)

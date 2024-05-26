@@ -82,15 +82,15 @@ namespace Mliybs.OneBot.V11.Data.Messages
         public static MessageChain operator +(MessageChain left, MessageChain right) =>
             left.AddRange(right);
 
-        public static bool operator ==(MessageChain chain, string text)
+        public static bool operator ==(MessageChain? chain, string text)
         {
-            if (chain is [TextMessage message]) return message == text;
+            if (chain is not null and [TextMessage message]) return message == text;
             return false;
         }
 
-        public static bool operator !=(MessageChain chain, string text)
+        public static bool operator !=(MessageChain? chain, string text)
         {
-            if (chain is [TextMessage message]) return message != text;
+            if (chain is not null and [TextMessage message]) return message != text;
             return true;
         }
 

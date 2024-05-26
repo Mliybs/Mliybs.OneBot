@@ -9,6 +9,7 @@ using Mliybs.OneBot.V11.Utils;
 using System;
 using System.Net.WebSockets;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -318,14 +319,14 @@ namespace Mliybs.OneBot.V11
             return (await handler.SendAsync(action, data)).Data;
         }
 
-        public IObservable<MessageReceiver> MessageReceived => handler.MessageReceived;
+        public IObservable<MessageReceiver> MessageReceived => handler.MessageReceived.ObserveOn(Scheduler.Default);
 
-        public IObservable<NoticeReceiver> NoticeReceived => handler.NoticeReceived;
+        public IObservable<NoticeReceiver> NoticeReceived => handler.NoticeReceived.ObserveOn(Scheduler.Default);
 
-        public IObservable<RequestReceiver> RequestReceived => handler.RequestReceived;
+        public IObservable<RequestReceiver> RequestReceived => handler.RequestReceived.ObserveOn(Scheduler.Default);
 
-        public IObservable<MetaReceiver> MetaReceived => handler.MetaReceived;
+        public IObservable<MetaReceiver> MetaReceived => handler.MetaReceived.ObserveOn(Scheduler.Default);
 
-        public IObservable<UnknownReceiver> UnknownReceived => handler.UnknownReceived;
+        public IObservable<UnknownReceiver> UnknownReceived => handler.UnknownReceived.ObserveOn(Scheduler.Default);
     }
 }

@@ -70,43 +70,41 @@ namespace Mliybs.OneBot.V11.Data
 #endif
         }
 
-        public bool RepliedCompare(string text)
+        public bool RepliedCompare(string text) => RepliedCompare() == text;
+
+        public MessageChain? RepliedCompare()
         {
             switch (receiver.Message)
             {
                 case [ReplyMessage reply, AtMessage at, TextMessage message, ..]:
                     if (message.Data.Text.StartsWith(' ')) message.Data.Text = message.Data.Text[1..];
                     receiver.Message.RemoveRange(0, 2);
-                    var task1 = bot.GetMessage(reply.Data.Id);
-                    task1.Wait();
-                    if (task1.Result.Sender.UserId == receiver.SelfId && at.Data.QQ == receiver.SelfId.ToString())
-                        return receiver.Message == text;
+                    if (bot.GetMessage(reply.Data.Id).GetAwaiter().GetResult().Sender.UserId == receiver.SelfId && at.Data.QQ == receiver.SelfId.ToString())
+                        return receiver.Message;
                     
-                    return receiver.Message == text;
+                    return null;
                 
                 case [ReplyMessage reply, TextMessage, ..]:
                     receiver.Message.RemoveAt(0);
-                    var task2 = bot.GetMessage(reply.Data.Id);
-                    task2.Wait();
-                    if (task2.Result.Sender.UserId == receiver.SelfId)
-                        return receiver.Message == text;
+                    if (bot.GetMessage(reply.Data.Id).GetAwaiter().GetResult().Sender.UserId == receiver.SelfId)
+                        return receiver.Message;
 
-                    return false;
+                    return null;
                 
                 case [AtMessage at, TextMessage message, ..]:
                     if (message.Data.Text.StartsWith(' ')) message.Data.Text = message.Data.Text[1..];
                     receiver.Message.RemoveAt(0);
                     if (at.Data.QQ == receiver.SelfId.ToString())
-                        return receiver.Message == text;
+                        return receiver.Message;
                     
-                    return false;
+                    return null;
 
                 default:
                     // 上方已处理私聊时有ReplyMessage的情况
                     if (receiver.MessageType == OneBotMessageType.Private)
-                        return receiver.Message == text;
+                        return receiver.Message;
 
-                    return false;
+                    return null;
             }
         }
     }

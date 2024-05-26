@@ -31,7 +31,7 @@ namespace Mliybs.OneBot.V11.Data
         [JsonPropertyName("sender")]
         public Sender Sender { get; set; }
 
-        [JsonPropertyName("message"), JsonIgnore]
+        [JsonPropertyName("message")]
         public MessageChain Message { get; set; }
     }
 
