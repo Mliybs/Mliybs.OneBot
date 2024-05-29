@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Text;
 using System.Reflection;
 using System.Linq;
@@ -17,15 +18,15 @@ namespace Mliybs.OneBot.V11.Utils
 {
     public static class UtilHelpers
     {
-        public static readonly Dictionary<string, Type> MessageReceivers = new();
+        public static readonly ConcurrentDictionary<string, Type> MessageReceivers = new();
 
-        public static readonly Dictionary<string, Type> NoticeReceivers = new();
+        public static readonly ConcurrentDictionary<string, Type> NoticeReceivers = new();
 
-        public static readonly Dictionary<string, Type> RequestReceivers = new();
+        public static readonly ConcurrentDictionary<string, Type> RequestReceivers = new();
 
-        public static readonly Dictionary<string, Type> MetaReceivers = new();
+        public static readonly ConcurrentDictionary<string, Type> MetaReceivers = new();
 
-        public static readonly Dictionary<string, Type> MessageTypes = new();
+        public static readonly ConcurrentDictionary<string, Type> MessageTypes = new();
 
         public static readonly JsonSerializerOptions Options = new()
         {
@@ -55,19 +56,19 @@ namespace Mliybs.OneBot.V11.Utils
                 if (name is null) continue;
 
                 if (type.IsSubclassOf(typeof(MessageBase)))
-                    MessageTypes.Add(name, type);
+                    MessageTypes.TryAdd(name, type);
 
                 else if (type.IsSubclassOf(typeof(MessageReceiver)))
-                    MessageReceivers.Add(name, type);
+                    MessageReceivers.TryAdd(name, type);
 
                 else if (type.IsSubclassOf(typeof(NoticeReceiver)))
-                    NoticeReceivers.Add(name, type);
+                    NoticeReceivers.TryAdd(name, type);
 
                 else if (type.IsSubclassOf(typeof(RequestReceiver)))
-                    RequestReceivers.Add(name, type);
+                    RequestReceivers.TryAdd(name, type);
 
                 else if (type.IsSubclassOf(typeof(MetaReceiver)))
-                    MetaReceivers.Add(name, type);
+                    MetaReceivers.TryAdd(name, type);
             }
         }
 
