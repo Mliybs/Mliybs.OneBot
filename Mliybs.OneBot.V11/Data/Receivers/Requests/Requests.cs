@@ -44,4 +44,9 @@ namespace Mliybs.OneBot.V11.Data.Receivers.Requests
             Invite
         }
     }
+
+    public class UnknownRequestReceiver : RequestReceiver
+    {
+        public System.Text.Json.JsonElement Data { get; set; }
+    }
 }

@@ -1,6 +1,7 @@
 using Mliybs.OneBot.V11.Utils;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -452,6 +453,19 @@ namespace Mliybs.OneBot.V11.Data.Messages
         {
             [JsonPropertyName("data")]
             public string Data { get; set; }
+        }
+    }
+
+    public class UnknownMessage : MessageBase
+    {
+        public override string Type => "unknown";
+
+        public System.Text.Json.JsonElement Data { get; set; }
+
+        public override StringBuilder GetCQCode(StringBuilder builder)
+        {
+            // 待实现
+            return builder;
         }
     }
 }

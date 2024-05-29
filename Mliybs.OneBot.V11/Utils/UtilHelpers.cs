@@ -50,20 +50,24 @@ namespace Mliybs.OneBot.V11.Utils
             {
                 if (type.IsAbstract) continue;
 
-                else if (type.IsSubclassOf(typeof(MessageBase)))
-                    MessageTypes.Add(type.GetCustomAttribute<CustomTypeIdentifierAttribute>()?.Name ?? type.Name, type);
+                var name = type.GetCustomAttribute<CustomTypeIdentifierAttribute>()?.Name;
+
+                if (name is null) continue;
+
+                if (type.IsSubclassOf(typeof(MessageBase)))
+                    MessageTypes.Add(name, type);
 
                 else if (type.IsSubclassOf(typeof(MessageReceiver)))
-                    MessageReceivers.Add(type.GetCustomAttribute<CustomTypeIdentifierAttribute>()?.Name ?? type.Name, type);
+                    MessageReceivers.Add(name, type);
 
                 else if (type.IsSubclassOf(typeof(NoticeReceiver)))
-                    NoticeReceivers.Add(type.GetCustomAttribute<CustomTypeIdentifierAttribute>()?.Name ?? type.Name, type);
+                    NoticeReceivers.Add(name, type);
 
                 else if (type.IsSubclassOf(typeof(RequestReceiver)))
-                    RequestReceivers.Add(type.GetCustomAttribute<CustomTypeIdentifierAttribute>()?.Name ?? type.Name, type);
+                    RequestReceivers.Add(name, type);
 
                 else if (type.IsSubclassOf(typeof(MetaReceiver)))
-                    MetaReceivers.Add(type.GetCustomAttribute<CustomTypeIdentifierAttribute>()?.Name ?? type.Name, type);
+                    MetaReceivers.Add(name, type);
             }
         }
 
@@ -111,7 +115,12 @@ namespace Mliybs.OneBot.V11.Utils
         internal static MessageChain DeserializeMessageChain(this JsonElement json)
         {
             var array = json.EnumerateArray();
-            return array.Select(x => x.Deserialize(MessageTypes[x.GetProperty("type").GetString()!], Options)).ToMessageChain();
+            return array.Select(x => MessageTypes.TryGetValue(x.GetProperty("type").GetString()!, out var type) ?
+                x.Deserialize(type, Options)
+                : new UnknownMessage()
+                {
+                    Data = x
+                }).ToMessageChain();
         }
 
         public static void Handle(string text,
@@ -128,55 +137,35 @@ namespace Mliybs.OneBot.V11.Utils
                 var type = element.GetString();
                 if (type == "message")
                 {
-                    try
-                    {
-                        var _type = MessageReceivers[json.RootElement.GetProperty("message_type").GetString()!];
-                        var obj = json.Deserialize(_type, Options)!;
-                        messageReceived.OnNext((MessageReceiver)obj ?? throw new NullReferenceException());
-                    }
-                    catch (Exception e)
-                    {
-                        messageReceived.OnError(e);
-                    }
+                    var _type = MessageReceivers[json.RootElement.GetProperty("message_type").GetString()!];
+                    var obj = json.Deserialize(_type, Options)!;
+                    messageReceived.OnNext((MessageReceiver)obj);
                 }
                 else if (type == "notice")
                 {
-                    try
-                    {
-                        var _type = NoticeReceivers[json.RootElement.GetProperty("notice_type").GetString()!];
-                        var obj = json.Deserialize(_type, Options)!;
-                        noticeReceived.OnNext((NoticeReceiver)obj ?? throw new NullReferenceException());
-                    }
-                    catch (Exception e)
-                    {
-                        noticeReceived.OnError(e);
-                    }
+                    var obj = NoticeReceivers.TryGetValue(json.RootElement.GetProperty("notice_type").GetString()!, out var _type)
+                        ? json.Deserialize(_type, Options)!
+                        : new UnknownNoticeReceiver()
+                        {
+                            Data = json.RootElement
+                        };
+                    noticeReceived.OnNext((NoticeReceiver)obj);
                 }
                 else if (type == "request")
                 {
-                    try
-                    {
-                        var _type = RequestReceivers[json.RootElement.GetProperty("request_type").GetString()!];
-                        var obj = json.Deserialize(_type, Options)!;
-                        requestReceived.OnNext((RequestReceiver)obj ?? throw new NullReferenceException());
-                    }
-                    catch (Exception e)
-                    {
-                        requestReceived.OnError(e);
-                    }
+                    var obj = RequestReceivers.TryGetValue(json.RootElement.GetProperty("request_type").GetString()!, out var _type)
+                        ? json.Deserialize(_type, Options)!
+                        : new UnknownRequestReceiver()
+                        {
+                            Data = json.RootElement
+                        };
+                    requestReceived.OnNext((RequestReceiver)obj);
                 }
                 else if (type == "meta_event")
                 {
-                    try
-                    {
-                        var _type = MetaReceivers[json.RootElement.GetProperty("meta_event_type").GetString()!];
-                        var obj = json.Deserialize(_type, Options)!;
-                        metaReceived.OnNext((MetaReceiver)obj ?? throw new NullReferenceException());
-                    }
-                    catch (Exception e)
-                    {
-                        metaReceived.OnError(e);
-                    }
+                    var _type = MetaReceivers[json.RootElement.GetProperty("meta_event_type").GetString()!];
+                    var obj = json.Deserialize(_type, Options)!;
+                    metaReceived.OnNext((MetaReceiver)obj);
                 }
                 else unknownReceived.OnNext(new UnknownReceiver
                 {
@@ -188,8 +177,10 @@ namespace Mliybs.OneBot.V11.Utils
                 try
                 {
                     var result = json.Deserialize<ReplyResult>(Options)!;
-                    result.Data = json.RootElement.GetProperty("data");
-                    if (onReply.TryGetValue(result.Echo ?? throw new NullReferenceException(), out var action)) action.Invoke(result);
+                    result.Data = json.RootElement.TryGetProperty("data", out var data)
+                        ? data
+                        : new();
+                    if (onReply.TryGetValue(result.Echo ?? "", out var action)) action.Invoke(result);
                 }
                 catch { }
             }

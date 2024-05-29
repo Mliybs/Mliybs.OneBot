@@ -19,7 +19,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
                 foreach (var prop in props)
                 {
                     var obj = GetType().GetProperty("Data")?.GetValue(this);
-                    var name = (prop.GetCustomAttribute(typeof(JsonPropertyNameAttribute)) as JsonPropertyNameAttribute)?.Name;
+                    var name = prop.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name;
                     if (obj is null || name is null) continue;
                     var value = prop.GetValue(obj);
                     if (value != null) builder.Append($@",{name}={value.ToString()?

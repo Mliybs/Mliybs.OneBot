@@ -209,4 +209,11 @@ namespace Mliybs.OneBot.V11.Data.Receivers.Notices
             Emotion
         }
     }
+
+    public class UnknownNoticeReceiver : NoticeReceiver
+    {
+        public override string NoticeType => "unknown";
+
+        public System.Text.Json.JsonElement Data { get; set; }
+    }
 }

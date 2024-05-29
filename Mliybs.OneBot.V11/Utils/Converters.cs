@@ -22,7 +22,9 @@ namespace Mliybs.OneBot.V11.Utils
             writer.WriteStartArray();
             value.ForEach(x =>
             {
-                writer.WriteRawValue(JsonSerializer.Serialize(x, x.GetType(), UtilHelpers.Options));
+                writer.WriteRawValue(x.GetType().GetProperty("Data").GetValue(x) is JsonElement element
+                ? element.GetRawText()
+                : JsonSerializer.Serialize(x, x.GetType(), UtilHelpers.Options));
             });
             writer.WriteEndArray();
         }
