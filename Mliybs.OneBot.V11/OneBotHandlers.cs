@@ -19,6 +19,7 @@ using Mliybs.OneBot.V11.Data.Receivers.Requests;
 using Mliybs.OneBot.V11.Data.Receivers.Metas;
 using System.Net;
 using System.Net.Sockets;
+using System.Collections.Concurrent;
 
 namespace Mliybs.OneBot.V11
 {
@@ -55,7 +56,7 @@ namespace Mliybs.OneBot.V11
 
         private readonly Subject<UnknownReceiver> unknownReceived = new();
 
-        private readonly Dictionary<string, Action<ReplyResult>> onReply = new();
+        private readonly ConcurrentDictionary<string, Action<ReplyResult>> onReply = new();
 
         public WebsocketOneBotHandler(Uri uri, string? token = null)
         {
