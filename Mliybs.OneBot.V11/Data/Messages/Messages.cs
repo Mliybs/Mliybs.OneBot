@@ -377,7 +377,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
         public class ReplyData
         {
             [JsonPropertyName("id")]
-            public int Id { get; set; }
+            public long Id { get; set; }
         }
     }
 
@@ -393,7 +393,7 @@ namespace Mliybs.OneBot.V11.Data.Messages
         public class ForwardData
         {
             [JsonPropertyName("id")]
-            public int Id { get; set; }
+            public long Id { get; set; }
         }
     }
 
