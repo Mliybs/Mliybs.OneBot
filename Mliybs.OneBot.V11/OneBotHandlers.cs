@@ -61,7 +61,7 @@ namespace Mliybs.OneBot.V11
         public WebsocketOneBotHandler(Uri uri, string? token = null)
         {
             if (token is not null) socket.Options.SetRequestHeader("Authorization", "Bearer " + token);
-            socket.ConnectAsync(uri, source.Token).Wait();
+            socket.ConnectAsync(uri, CancellationToken.None).GetAwaiter().GetResult();
             _ = Run();
         }
 
@@ -75,7 +75,7 @@ namespace Mliybs.OneBot.V11
                 socket.Abort();
                 socket.Dispose();
                 socket = new();
-                socket.ConnectAsync(uri, CancellationToken.None).Wait();
+                socket.ConnectAsync(uri, CancellationToken.None).GetAwaiter().GetResult();
                 _ = Run();
             };
         }
@@ -111,7 +111,18 @@ namespace Mliybs.OneBot.V11
                     if (string.IsNullOrEmpty(text)) break;
                     UtilHelpers.Handle(text, messageReceived, noticeReceived, requestReceived, metaReceived, unknownReceived, onReply);
                 }
+                // 捕获OperationCanceled和TaskCanceled（如果有的话）
                 catch (OperationCanceledException)
+                {
+                    break;
+                }
+                // 捕获SocketException Operation Canceled
+                catch (SocketException e) when (e.ErrorCode == 125)
+                {
+                    break;
+                }
+                // 捕获包装异常
+                catch (Exception e) when (e.InnerException is SocketException ex && ex.ErrorCode == 125)
                 {
                     break;
                 }
@@ -168,7 +179,7 @@ namespace Mliybs.OneBot.V11
 
         private readonly Subject<UnknownReceiver> unknownReceived = new();
 
-        private readonly Dictionary<string, Action<ReplyResult>> onReply = new();
+        private readonly ConcurrentDictionary<string, Action<ReplyResult>> onReply = new();
 
         public HttpOneBotHandler(string _url, string _local, string? token = null)
         {
@@ -278,7 +289,7 @@ namespace Mliybs.OneBot.V11
 
         private readonly Subject<UnknownReceiver> unknownReceived = new();
 
-        private readonly Dictionary<string, Action<ReplyResult>> onReply = new();
+        private readonly ConcurrentDictionary<string, Action<ReplyResult>> onReply = new();
 
         public WebsocketReverseOneBotHandler(string _url, string? token = null)
         {
