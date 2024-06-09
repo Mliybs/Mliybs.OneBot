@@ -144,23 +144,43 @@ namespace Mliybs.OneBot.V11.Utils
                 }
                 else if (type == "notice")
                 {
-                    var obj = NoticeReceivers.TryGetValue(json.RootElement.GetProperty("notice_type").GetString()!, out var _type)
-                        ? json.Deserialize(_type, Options)!
-                        : new UnknownNoticeReceiver()
+                    try
+                    {
+                        var obj = NoticeReceivers.TryGetValue(json.RootElement.GetProperty("notice_type").GetString()!, out var _type)
+                            ? json.Deserialize(_type, Options)!
+                            : new UnknownNoticeReceiver()
+                            {
+                                Data = json.RootElement
+                            };
+                        noticeReceived.OnNext((NoticeReceiver)obj);
+                    }
+                    catch (JsonException)
+                    {
+                        noticeReceived.OnNext(new UnknownNoticeReceiver()
                         {
                             Data = json.RootElement
-                        };
-                    noticeReceived.OnNext((NoticeReceiver)obj);
+                        });
+                    }
                 }
                 else if (type == "request")
                 {
-                    var obj = RequestReceivers.TryGetValue(json.RootElement.GetProperty("request_type").GetString()!, out var _type)
-                        ? json.Deserialize(_type, Options)!
-                        : new UnknownRequestReceiver()
+                    try
+                    {
+                        var obj = RequestReceivers.TryGetValue(json.RootElement.GetProperty("request_type").GetString()!, out var _type)
+                            ? json.Deserialize(_type, Options)!
+                            : new UnknownRequestReceiver()
+                            {
+                                Data = json.RootElement
+                            };
+                        requestReceived.OnNext((RequestReceiver)obj);
+                    }
+                    catch (JsonException)
+                    {
+                        requestReceived.OnNext(new UnknownRequestReceiver()
                         {
                             Data = json.RootElement
-                        };
-                    requestReceived.OnNext((RequestReceiver)obj);
+                        });
+                    }
                 }
                 else if (type == "meta_event")
                 {
