@@ -116,12 +116,25 @@ namespace Mliybs.OneBot.V11.Utils
         internal static MessageChain DeserializeMessageChain(this JsonElement json)
         {
             var array = json.EnumerateArray();
-            return array.Select(x => MessageTypes.TryGetValue(x.GetProperty("type").GetString()!, out var type) ?
-                x.Deserialize(type, Options)
-                : new UnknownMessage()
+            return array.Select(x =>
+            {
+                try
                 {
-                    Data = x
-                }).ToMessageChain();
+                    return MessageTypes.TryGetValue(x.GetProperty("type").GetString()!, out var type)
+                    ? x.Deserialize(type, Options)
+                    : new UnknownMessage()
+                    {
+                        Data = x
+                    };
+                }
+                catch (JsonException)
+                {
+                    return new UnknownMessage()
+                    {
+                        Data = x
+                    };
+                }
+            }).ToMessageChain();
         }
 
         public static void Handle(string text,
