@@ -91,7 +91,7 @@ namespace Mliybs.OneBot.V11
                     string text;
                     while (true)
                     {
-                        var result = await socket.ReceiveAsync(bytes.AsMemory(read), source.Token);
+                        var result = await socket.ReceiveAsync(bytes.AsMemory(read), source.Token).ConfigureAwait(false);
                         if (result.EndOfMessage)
                         {
                             text = Encoding.UTF8.GetString(bytes.AsSpan(0, read + result.Count));
@@ -134,8 +134,8 @@ namespace Mliybs.OneBot.V11
             var (json, id) = UtilHelpers.BuildWebSocketJson(action, data);
             var bytes = Encoding.UTF8.GetBytes(json);
             var task = this.WaitForReply(id);
-            await socket.SendAsync(bytes, WebSocketMessageType.Text, true, source.Token);
-            return await task;
+            await socket.SendAsync(bytes, WebSocketMessageType.Text, true, source.Token).ConfigureAwait(false);
+            return await task.ConfigureAwait(false);
         }
 
         public void Dispose()
@@ -201,8 +201,8 @@ namespace Mliybs.OneBot.V11
                 Path = action
             };
             var bytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data));
-            var res = await client.PostAsync(builder.Uri, new ByteArrayContent(bytes));
-            var json = JsonDocument.Parse(await res.Content.ReadAsStringAsync());
+            var res = await client.PostAsync(builder.Uri, new ByteArrayContent(bytes)).ConfigureAwait(false);
+            var json = JsonDocument.Parse(await res.Content.ReadAsStringAsync().ConfigureAwait(false));
             var result = json.Deserialize<ReplyResult>(UtilHelpers.Options)!;
             result.Data = json.RootElement.GetProperty("data");
             return result;
@@ -213,7 +213,7 @@ namespace Mliybs.OneBot.V11
             listener.Start();
             while (listener.IsListening)
             {
-                var context = await listener.GetContextAsync();
+                var context = await listener.GetContextAsync().ConfigureAwait(false);
                 if (context.Request.HttpMethod != "POST" || context.Request.RawUrl != new Uri(local).AbsolutePath)
                 {
                     context.Response.StatusCode = 404;
@@ -225,7 +225,7 @@ namespace Mliybs.OneBot.V11
                 string text;
                 while (true)
                 {
-                    var length = await context.Request.InputStream.ReadAsync(bytes.AsMemory(read));
+                    var length = await context.Request.InputStream.ReadAsync(bytes.AsMemory(read)).ConfigureAwait(false);
                     if (length == 0)
                     {
                         text = Encoding.UTF8.GetString(bytes.AsSpan(0, read + length));
@@ -314,7 +314,7 @@ namespace Mliybs.OneBot.V11
             listener.Start();
             while (listener.IsListening)
             {
-                var context = await listener.GetContextAsync();
+                var context = await listener.GetContextAsync().ConfigureAwait(false);
                 if (!context.Request.IsWebSocketRequest)
                 {
                     context.Response.StatusCode = 404;
@@ -345,7 +345,7 @@ namespace Mliybs.OneBot.V11
                     context.Response.Close();
                     continue;
                 }
-                socket = (await context.AcceptWebSocketAsync(null)).WebSocket;
+                socket = (await context.AcceptWebSocketAsync(null).ConfigureAwait(false)).WebSocket;
                 while (socket.State == WebSocketState.Open)
                 {
                     try
@@ -355,7 +355,7 @@ namespace Mliybs.OneBot.V11
                         string text;
                         while (true)
                         {
-                            var result = await socket.ReceiveAsync(bytes.AsMemory(read), source.Token);
+                            var result = await socket.ReceiveAsync(bytes.AsMemory(read), source.Token).ConfigureAwait(false);
                             if (result.EndOfMessage)
                             {
                                 text = Encoding.UTF8.GetString(bytes.AsSpan(0, read + result.Count));
@@ -390,8 +390,8 @@ namespace Mliybs.OneBot.V11
             var (json, id) = UtilHelpers.BuildWebSocketJson(action, data);
             var bytes = Encoding.UTF8.GetBytes(json);
             var task = this.WaitForReply(id);
-            await socket!.SendAsync(bytes, WebSocketMessageType.Text, true, source.Token);
-            return await task;
+            await socket!.SendAsync(bytes, WebSocketMessageType.Text, true, source.Token).ConfigureAwait(false);
+            return await task.ConfigureAwait(false);
         }
 
         public void Dispose()

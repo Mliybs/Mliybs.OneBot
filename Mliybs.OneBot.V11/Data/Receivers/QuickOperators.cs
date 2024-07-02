@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Mliybs.OneBot.V11.Data.Messages;
 using Mliybs.OneBot.V11.Data.Receivers.Messages;
@@ -10,16 +11,16 @@ namespace Mliybs.OneBot.V11.Data
     public class MessageQuickOperator(MessageReceiver receiver, OneBot bot)
     {
 #if !NET6_0_OR_GREATER
-        private readonly Random random = new();
+        private static readonly ThreadLocal<Random> random = new(() => new());
 #endif
 
         public async Task<Message> Send(MessageChain message)
         {
             if (receiver is GroupMessageReceiver group)
-                return await bot.SendGroupMessage(group.GroupId, message);
+                return await bot.SendGroupMessage(group.GroupId, message).ConfigureAwait(false);
 
             if (receiver is PrivateMessageReceiver @private)
-                return await bot.SendPrivateMessage(@private.UserId, message);
+                return await bot.SendPrivateMessage(@private.UserId, message).ConfigureAwait(false);
 
             throw new InvalidOperationException("receiver类型不支持！");
         }
@@ -27,9 +28,9 @@ namespace Mliybs.OneBot.V11.Data
         public async Task<Message> SendRandom(params MessageChain[] messages)
         {
 #if NET6_0_OR_GREATER
-            return await Send(messages[Random.Shared.Next(messages.Length)]);
+            return await Send(messages[Random.Shared.Next(messages.Length)]).ConfigureAwait(false);
 #else
-            return await Send(messages[random.Next(messages.Length)]);
+            return await Send(messages[random.Value.Next(messages.Length)]).ConfigureAwait(false);
 #endif
         }
 
@@ -42,8 +43,9 @@ namespace Mliybs.OneBot.V11.Data
                     .If(group.Sender.UserId != null, x => x
                         .At(group.Sender.UserId!.Value)
                         .Text(" "))
+                    .AddRange(message)
                     .Build();
-                return await bot.SendGroupMessage(group.GroupId, @new.Concat(message).ToMessageChain());
+                return await bot.SendGroupMessage(group.GroupId, @new).ConfigureAwait(false);
             }
 
             if (receiver is PrivateMessageReceiver @private)
@@ -55,7 +57,7 @@ namespace Mliybs.OneBot.V11.Data
                         Id = @private.MessageId
                     }
                 });
-                return await bot.SendPrivateMessage(@private.UserId, message);
+                return await bot.SendPrivateMessage(@private.UserId, message).ConfigureAwait(false);
             }
 
             throw new InvalidOperationException("receiver类型不支持！");
@@ -64,46 +66,52 @@ namespace Mliybs.OneBot.V11.Data
         public async Task<Message> ReplyRandom(params MessageChain[] messages)
         {
 #if NET6_0_OR_GREATER
-            return await Reply(messages[Random.Shared.Next(messages.Length)]);
+            return await Reply(messages[Random.Shared.Next(messages.Length)]).ConfigureAwait(false);
 #else
-            return await Reply(messages[random.Next(messages.Length)]);
+            return await Reply(messages[random.Value.Next(messages.Length)]).ConfigureAwait(false);
 #endif
         }
 
-        public bool RepliedCompare(string text) => RepliedCompare() == text;
-
-        public MessageChain? RepliedCompare()
+        public async Task<MessageChain?> AsReplied()
         {
+            if (receiver.MessageType == OneBotMessageType.Private) return new(receiver.Message);
+
             switch (receiver.Message)
             {
-                case [ReplyMessage reply, AtMessage at, TextMessage message, ..]:
-                    if (message.Data.Text.StartsWith(' ')) message.Data.Text = message.Data.Text[1..];
-                    receiver.Message.RemoveRange(0, 2);
-                    if (bot.GetMessage(reply.Data.Id).GetAwaiter().GetResult().Sender.UserId == receiver.SelfId && at.Data.QQ == receiver.SelfId.ToString())
-                        return receiver.Message;
+                case [ReplyMessage reply, AtMessage at, var message, ..]:
+                    if ((await bot.GetMessage(reply.Data.Id).ConfigureAwait(false)).Sender.UserId == receiver.SelfId && at.Data.QQ == receiver.SelfId.ToString())
+                        return
+                        [
+                            message is TextMessage text && text.Data.Text.StartsWith(' ')
+                                ? (TextMessage)text.Data.Text[1..]
+                                : message,
+                            ..receiver.Message.Skip(3),
+                        ];
                     
                     return null;
                 
-                case [ReplyMessage reply, TextMessage, ..]:
-                    receiver.Message.RemoveAt(0);
-                    if (bot.GetMessage(reply.Data.Id).GetAwaiter().GetResult().Sender.UserId == receiver.SelfId)
-                        return receiver.Message;
+                case [ReplyMessage reply, var message, ..]:
+                    if ((await bot.GetMessage(reply.Data.Id).ConfigureAwait(false)).Sender.UserId == receiver.SelfId)
+                        return
+                        [
+                            message, ..receiver.Message.Skip(2)
+                        ];
 
                     return null;
                 
-                case [AtMessage at, TextMessage message, ..]:
-                    if (message.Data.Text.StartsWith(' ')) message.Data.Text = message.Data.Text[1..];
-                    receiver.Message.RemoveAt(0);
+                case [AtMessage at, var message, ..]:
                     if (at.Data.QQ == receiver.SelfId.ToString())
-                        return receiver.Message;
-                    
+                        return
+                        [
+                            message is TextMessage text && text.Data.Text.StartsWith(' ')
+                                ? (TextMessage)text.Data.Text[1..]
+                                : message,
+                            ..receiver.Message.Skip(2),
+                        ];
+
                     return null;
 
                 default:
-                    // 上方已处理私聊时有ReplyMessage的情况
-                    if (receiver.MessageType == OneBotMessageType.Private)
-                        return receiver.Message;
-
                     return null;
             }
         }

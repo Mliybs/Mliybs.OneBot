@@ -14,7 +14,7 @@ AppDomain.CurrentDomain.FirstChanceException += (sender, e) =>
 using var bot = OneBot.Websocket("ws://192.168.3.3:3001");
 
 bot.MessageReceived
-    .Subscribe(x => _ = x.With(bot).Send(x.Message.GetCQCode()));
+    .Subscribe(x => _ = x.With(bot).Send(x.Message.CQCode));
 
 Console.Read();
 

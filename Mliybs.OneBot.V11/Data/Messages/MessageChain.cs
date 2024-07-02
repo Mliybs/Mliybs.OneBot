@@ -1,6 +1,7 @@
 using Mliybs.OneBot.V11.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -9,27 +10,57 @@ namespace Mliybs.OneBot.V11.Data.Messages
     [JsonConverter(typeof(MessageChainConverter))]
     public class MessageChain : List<MessageBase>
     {
-        public MessageChain() { }
-        public MessageChain(IEnumerable<MessageBase> messages) : base(messages) { }
+        private readonly Lazy<string> cqCode;
 
+        private readonly Lazy<string> allText;
+
+        public MessageChain()
+        {
+            cqCode = new(() =>
+            {
+                var builder = new StringBuilder();
+                ForEach(x => x.GetCQCode(builder));
+                return builder.ToString();
+            });
+
+            allText = new(() =>
+            {
+                var builder = new StringBuilder();
+                ForEach(x =>
+                {
+                    if (x is TextMessage text) builder.Append(text);
+                });
+                return builder.ToString();
+            });
+        }
+#nullable disable
+        public MessageChain(IEnumerable<MessageBase> messages) : base(messages)
+        {
+            cqCode = new(() =>
+            {
+                var builder = new StringBuilder();
+                ForEach(x => x.GetCQCode(builder));
+                return builder.ToString();
+            });
+
+            allText = new(() =>
+            {
+                var builder = new StringBuilder();
+                ForEach(x =>
+                {
+                    if (x is TextMessage text) builder.Append(text);
+                });
+                return builder.ToString();
+            });
+        }
+#nullable restore
         public ReplyMessage? Reply => Find(x => x is ReplyMessage) as ReplyMessage;
 
-        public string GetCQCode()
-        {
-            var builder = new StringBuilder();
-            ForEach(x => x.GetCQCode(builder));
-            return builder.ToString();
-        }
+        public string CQCode => cqCode.Value;
 
-        public string GetPlainText()
-        {
-            var builder = new StringBuilder();
-            ForEach(x =>
-            {
-                if (x is TextMessage text) builder.Append(text);
-            });
-            return builder.ToString();
-        }
+        public string AllText => allText.Value;
+
+        public string? Text => this is [TextMessage text] ? text : null;
 
         public bool NoReplyCompare(string text) => NoReply() == text;
 
@@ -39,26 +70,33 @@ namespace Mliybs.OneBot.V11.Data.Messages
         {
             switch (this)
             {
-                case [ReplyMessage, AtMessage, TextMessage text, ..]:
-                    if (text.Data.Text.StartsWith(' ')) text.Data.Text = text.Data.Text[1..];
-                    RemoveRange(0, 2);
+                case [ReplyMessage, AtMessage, var message, ..]:
                     changed = true;
-                    return this;
+                    return
+                    [
+                        message is TextMessage text && text.Data.Text.StartsWith(' ')
+                            ? (TextMessage)text.Data.Text[1..]
+                            : message,
+                        ..this.Skip(3)
+                    ];
                 
-                case [ReplyMessage, TextMessage, ..]:
-                    RemoveAt(0);
+                case [ReplyMessage, var message, ..]:
                     changed = true;
-                    return this;
+                    return [message, ..this.Skip(2)];
                 
-                case [AtMessage, TextMessage text, ..]:
-                    if (text.Data.Text.StartsWith(' ')) text.Data.Text = text.Data.Text[1..];
-                    RemoveAt(0);
+                case [AtMessage, var message, ..]:
                     changed = true;
-                    return this;
+                    return
+                    [
+                        message is TextMessage _text && _text.Data.Text.StartsWith(' ')
+                            ? (TextMessage)_text.Data.Text[1..]
+                            : message,
+                        ..this.Skip(2)
+                    ];
 
                 default:
                     changed = false;
-                    return this;
+                    return new();
             }
         }
 
