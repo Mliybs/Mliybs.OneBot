@@ -12,7 +12,6 @@ using Mliybs.OneBot.V11.Data.Receivers.Notices;
 using Mliybs.OneBot.V11.Data.Receivers.Requests;
 using Mliybs.OneBot.V11.Data.Receivers.Metas;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Mliybs.OneBot.V11.Utils
 {

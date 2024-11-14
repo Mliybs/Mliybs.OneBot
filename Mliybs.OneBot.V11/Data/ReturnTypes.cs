@@ -119,7 +119,7 @@ namespace Mliybs.OneBot.V11.Data
         public int LastSentTime { get; set; }
 
         [JsonPropertyName("level")]
-        public string Level { get; set; }
+        public int Level { get; set; }
 
         [JsonPropertyName("role"), JsonConverter(typeof(JsonStringEnumConverter))]
         public Role Role { get; set; }

@@ -59,7 +59,7 @@ namespace Mliybs.OneBot.V11
                 user_id = userId,
                 message,
                 auto_escape = autoEscape
-            }).ConfigureAwait(false)).Data.Deserialize<Message>()!;
+            }).ConfigureAwait(false)).Data.Deserialize<Message>(UtilHelpers.Options)!;
         }
 
         public async Task<Message> SendGroupMessage(long groupId, MessageChain message, bool autoEscape = false)
@@ -69,7 +69,7 @@ namespace Mliybs.OneBot.V11
                 group_id = groupId,
                 message,
                 auto_escape = autoEscape
-            }).ConfigureAwait(false)).Data.Deserialize<Message>()!;
+            }).ConfigureAwait(false)).Data.Deserialize<Message>(UtilHelpers.Options)!;
         }
 
         public async Task<Message> SendMessage(OneBotMessageType messageType, long id, MessageChain message, bool autoEscape = false)
@@ -80,7 +80,7 @@ namespace Mliybs.OneBot.V11
                 OneBotMessageType.Group => new { group_id = id, message, auto_escape = autoEscape },
                 _ => throw new ArgumentException("消息类型不正确！", nameof(messageType))
             };
-            return (await handler.SendAsync(OneBotStatics.SendMessage, obj).ConfigureAwait(false)).Data.Deserialize<Message>()!;
+            return (await handler.SendAsync(OneBotStatics.SendMessage, obj).ConfigureAwait(false)).Data.Deserialize<Message>(UtilHelpers.Options)!;
         }
 
         public async Task DeleteMessage(int messageId)
@@ -90,7 +90,7 @@ namespace Mliybs.OneBot.V11
 
         public async Task<DetailedMessage> GetMessage(int messageId)
         {
-            return (await handler.SendAsync(OneBotStatics.GetMessage, new { message_id = messageId }).ConfigureAwait(false)).Data.Deserialize<DetailedMessage>()!;
+            return (await handler.SendAsync(OneBotStatics.GetMessage, new { message_id = messageId }).ConfigureAwait(false)).Data.Deserialize<DetailedMessage>(UtilHelpers.Options)!;
         }
 
         public async Task<MessageChain> GetForwardMessage(string messageId)
@@ -212,27 +212,27 @@ namespace Mliybs.OneBot.V11
 
         public async Task<LoginInfo> GetLoginInfo()
         {
-            return (await handler.SendAsync(OneBotStatics.GetLoginInfo, new { }).ConfigureAwait(false)).Data.Deserialize<LoginInfo>()!;
+            return (await handler.SendAsync(OneBotStatics.GetLoginInfo, new { }).ConfigureAwait(false)).Data.Deserialize<LoginInfo>(UtilHelpers.Options)!;
         }
 
         public async Task<StrangerInfo> GetStrangerInfo(long userId, bool noCache = false)
         {
-            return (await handler.SendAsync(OneBotStatics.GetStrangerInfo, new { user_id = userId, no_cache = noCache }).ConfigureAwait(false)).Data.Deserialize<StrangerInfo>()!;
+            return (await handler.SendAsync(OneBotStatics.GetStrangerInfo, new { user_id = userId, no_cache = noCache }).ConfigureAwait(false)).Data.Deserialize<StrangerInfo>(UtilHelpers.Options)!;
         }
 
         public async Task<FriendInfo[]> GetFriendList()
         {
-            return (await handler.SendAsync(OneBotStatics.GetFriendList, new { }).ConfigureAwait(false)).Data.Deserialize<FriendInfo[]>()!;
+            return (await handler.SendAsync(OneBotStatics.GetFriendList, new { }).ConfigureAwait(false)).Data.Deserialize<FriendInfo[]>(UtilHelpers.Options)!;
         }
 
         public async Task<GroupInfo> GetGroupInfo(long groupId, bool noCache = false)
         {
-            return (await handler.SendAsync(OneBotStatics.GetGroupInfo, new { group_id = groupId, no_cache = noCache }).ConfigureAwait(false)).Data.Deserialize<GroupInfo>()!;
+            return (await handler.SendAsync(OneBotStatics.GetGroupInfo, new { group_id = groupId, no_cache = noCache }).ConfigureAwait(false)).Data.Deserialize<GroupInfo>(UtilHelpers.Options)!;
         }
 
         public async Task<GroupInfo[]> GetGroupList()
         {
-            return (await handler.SendAsync(OneBotStatics.GetGroupList, new { }).ConfigureAwait(false)).Data.Deserialize<GroupInfo[]>()!;
+            return (await handler.SendAsync(OneBotStatics.GetGroupList, new { }).ConfigureAwait(false)).Data.Deserialize<GroupInfo[]>(UtilHelpers.Options)!;
         }
 
         public async Task<GroupMemberInfo> GetGroupMemberInfo(long groupId, long userId, bool noCache = false)
@@ -242,12 +242,12 @@ namespace Mliybs.OneBot.V11
                 group_id = groupId,
                 user_id = userId,
                 no_cache = noCache
-            }).ConfigureAwait(false)).Data.Deserialize<GroupMemberInfo>()!;
+            }).ConfigureAwait(false)).Data.Deserialize<GroupMemberInfo>(UtilHelpers.Options)!;
         }
 
         public async Task<GroupMemberInfo[]> GetGroupMemberList(long groupId)
         {
-            return (await handler.SendAsync(OneBotStatics.GetGroupMemberList, new { group_id = groupId }).ConfigureAwait(false)).Data.Deserialize<GroupMemberInfo[]>()!;
+            return (await handler.SendAsync(OneBotStatics.GetGroupMemberList, new { group_id = groupId }).ConfigureAwait(false)).Data.Deserialize<GroupMemberInfo[]>(UtilHelpers.Options)!;
         }
 
         public async Task<HonorInfos> GetGroupHonorInfo(long groupId, string type)
@@ -256,32 +256,32 @@ namespace Mliybs.OneBot.V11
             {
                 group_id = groupId,
                 type
-            }).ConfigureAwait(false)).Data.Deserialize<HonorInfos>()!;
+            }).ConfigureAwait(false)).Data.Deserialize<HonorInfos>(UtilHelpers.Options)!;
         }
 
         public async Task<CookiesInfo> GetCookies(string domain)
         {
-            return (await handler.SendAsync(OneBotStatics.GetCookies, new { domain }).ConfigureAwait(false)).Data.Deserialize<CookiesInfo>()!;
+            return (await handler.SendAsync(OneBotStatics.GetCookies, new { domain }).ConfigureAwait(false)).Data.Deserialize<CookiesInfo>(UtilHelpers.Options)!;
         }
 
         public async Task<CsrfInfo> GetCsrfToken()
         {
-            return (await handler.SendAsync(OneBotStatics.GetCsrfToken, new { }).ConfigureAwait(false)).Data.Deserialize<CsrfInfo>()!;
+            return (await handler.SendAsync(OneBotStatics.GetCsrfToken, new { }).ConfigureAwait(false)).Data.Deserialize<CsrfInfo>(UtilHelpers.Options)!;
         }
 
         public async Task<Credentials> GetCredentials(string domain)
         {
-            return (await handler.SendAsync(OneBotStatics.GetCredentials, new { domain }).ConfigureAwait(false)).Data.Deserialize<Credentials>()!;
+            return (await handler.SendAsync(OneBotStatics.GetCredentials, new { domain }).ConfigureAwait(false)).Data.Deserialize<Credentials>(UtilHelpers.Options)!;
         }
 
         public async Task<FileInfo> GetRecord(string file, string outFormat)
         {
-            return (await handler.SendAsync(OneBotStatics.GetRecord, new { file, out_format = outFormat }).ConfigureAwait(false)).Data.Deserialize<FileInfo>()!;
+            return (await handler.SendAsync(OneBotStatics.GetRecord, new { file, out_format = outFormat }).ConfigureAwait(false)).Data.Deserialize<FileInfo>(UtilHelpers.Options)!;
         }
 
         public async Task<FileInfo> GetImage(string file)
         {
-            return (await handler.SendAsync(OneBotStatics.GetImage, new { file }).ConfigureAwait(false)).Data.Deserialize<FileInfo>()!;
+            return (await handler.SendAsync(OneBotStatics.GetImage, new { file }).ConfigureAwait(false)).Data.Deserialize<FileInfo>(UtilHelpers.Options)!;
         }
 
         public async Task<bool> CanSendImage()
@@ -296,12 +296,12 @@ namespace Mliybs.OneBot.V11
 
         public async Task<StatusInfo> GetStatus()
         {
-            return (await handler.SendAsync(OneBotStatics.GetStatus, new { }).ConfigureAwait(false)).Data.Deserialize<StatusInfo>()!;
+            return (await handler.SendAsync(OneBotStatics.GetStatus, new { }).ConfigureAwait(false)).Data.Deserialize<StatusInfo>(UtilHelpers.Options)!;
         }
 
         public async Task<VersionInfo> GetVersionInfo()
         {
-            return (await handler.SendAsync(OneBotStatics.GetVersionInfo, new { }).ConfigureAwait(false)).Data.Deserialize<VersionInfo>()!;
+            return (await handler.SendAsync(OneBotStatics.GetVersionInfo, new { }).ConfigureAwait(false)).Data.Deserialize<VersionInfo>(UtilHelpers.Options)!;
         }
 
         public async Task SetRestart(int delay)
