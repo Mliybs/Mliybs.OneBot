@@ -16,7 +16,7 @@ namespace Mliybs.OneBot.V11.Utils
 
         public const string GetMessage = "get_msg";
 
-        public const string GetForwardMessage = "get_forward";
+        public const string GetForwardMessage = "get_forward_msg";
 
         public const string SendLike = "send_like";
 
